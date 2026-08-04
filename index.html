@@ -381,20 +381,21 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Pastorallis One">
+<meta name="apple-mobile-web-app-title" content="Gestão Sul 1">
 <link rel="manifest" id="pwaManifest">
 <script>
-// ── PONTO 3: PWA Manifest — marca fixa Pastorallis One ──
+// ── PONTO 3: PWA Manifest dinâmico (usa config salva) ──
 (function(){
   try{
-    var nome='Pastorallis One';
-    var cor='#2563eb';
+    var cfg=JSON.parse(localStorage.getItem('app_config')||'{}');
+    var nome=cfg.nome||'Sua Organização';
+    var cor=cfg.cor||'#2563eb';
     var manifest={
       name:nome,short_name:nome,
       description:'Portal de Formulários Pastorais',
       start_url:'.',display:'standalone',
       background_color:'#ffffff',theme_color:cor,
-      icons:[{src:'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" rx="20" fill="'+encodeURIComponent(cor)+'"/><text y=".9em" font-size="80" x="10">🐑</text></svg>',sizes:'any',type:'image/svg+xml'}]
+      icons:[{src:'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" rx="20" fill="'+encodeURIComponent(cor)+'"/><text y=".9em" font-size="80" x="10">✈</text></svg>',sizes:'any',type:'image/svg+xml'}]
     };
     var blob=new Blob([JSON.stringify(manifest)],{type:'application/json'});
     document.getElementById('pwaManifest').href=URL.createObjectURL(blob);
@@ -1398,21 +1399,78 @@ textarea{resize:vertical;min-height:80px;}
     <div class="cfg-header">
       <div>
         <div class="cfg-header-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:1.15em;height:1.15em;vertical-align:-0.2em"><circle cx="12" cy="12" r="3"></circle><path d="M12 3v3M12 18v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M3 12h3M18 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"></path></svg> Configurações do App</div>
-        <div class="cfg-header-sub">Nome da instituição, CNPJ, WhatsApp e senha do painel</div>
+        <div class="cfg-header-sub">Personalize logo, nome e identidade visual</div>
       </div>
       <button class="cfg-close" onclick="cfgClose()">✕</button>
     </div>
     <div class="cfg-scroll">
 
-      <div class="cfg-section-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:1.15em;height:1.15em;vertical-align:-0.2em"><path d="M4 21V9l8-5 8 5v12"></path><path d="M4 21h16"></path><path d="M9 21v-7h6v7"></path></svg> Dados da Instituição</div>
+      <div class="cfg-section-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:1.15em;height:1.15em;vertical-align:-0.2em"><path d="M4 8h3l1.5-2h7L17 8h3v11H4Z"></path><circle cx="12" cy="13.5" r="3.5"></circle></svg> Logo</div>
+      <div class="cfg-logo-preview">
+        <div class="cfg-logo-circle" id="cfgLogoCircle">
+          <img id="cfgLogoPreviewImg" src="" style="display:none;">
+          <span id="cfgLogoEmoji"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:1.15em;height:1.15em;vertical-align:-0.2em"><path d="M4 21V9l8-5 8 5v12"></path><path d="M4 21h16"></path><path d="M9 21v-7h6v7"></path></svg></span>
+        </div>
+        <div class="cfg-logo-actions">
+          <button class="cfg-logo-btn" onclick="document.getElementById('cfgLogoInput').click()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:1.15em;height:1.15em;vertical-align:-0.2em"><path d="M4 8h3l1.5-2h7L17 8h3v11H4Z"></path><circle cx="12" cy="13.5" r="3.5"></circle></svg> Escolher Logo</button>
+          <input type="file" id="cfgLogoInput" accept="image/*" style="display:none;" onchange="cfgHandleLogo(this)">
+          <button class="cfg-logo-btn cfg-logo-btn-remove" onclick="cfgRemoveLogo()">✕ Remover Logo</button>
+        </div>
+      </div>
       <div class="cfg-field">
-        <label>Nome da instituição</label>
-        <input type="text" id="cfgNome" placeholder="Ex: Diocese de São Paulo">
-        <div style="font-size:.72rem;color:var(--muted);margin-top:4px;">Aparece nos documentos exportados e no aviso de privacidade (LGPD). Não muda o nome do app, que é sempre "Pastorallis One".</div>
+        <label>Tamanho da logo</label>
+        <input type="range" id="cfgLogoSize" min="60" max="140" step="2" oninput="cfgAtualizarPreview()">
+      </div>
+
+      <div class="cfg-section-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:1.15em;height:1.15em;vertical-align:-0.2em"><path d="M4 21V9l8-5 8 5v12"></path><path d="M4 21h16"></path><path d="M9 21v-7h6v7"></path></svg> Identidade</div>
+      <div class="cfg-field">
+        <label>Nome da Organização</label>
+        <input type="text" id="cfgNome" placeholder="Ex: Diocese de São Paulo" oninput="cfgAtualizarPreview()">
+      </div>
+      <div class="cfg-field">
+        <label>Tamanho do nome</label>
+        <input type="range" id="cfgNomeSize" min="1.1" max="2.4" step="0.05" oninput="cfgAtualizarPreview()">
+      </div>
+      <div class="cfg-field">
+        <label>Subtítulo</label>
+        <input type="text" id="cfgSubtitulo" placeholder="Ex: Portal de Formulários Pastorais" oninput="cfgAtualizarPreview()">
+      </div>
+      <div class="cfg-field">
+        <label>Tamanho do subtítulo</label>
+        <input type="range" id="cfgSubSize" min="0.6" max="1.1" step="0.02" oninput="cfgAtualizarPreview()">
+      </div>
+      <div class="cfg-field">
+        <label>Layout do cabeçalho</label>
+        <select id="cfgLayout" onchange="cfgAtualizarPreview()">
+          <option value="centro">Centralizado</option>
+          <option value="lado">Logo ao lado do nome</option>
+        </select>
       </div>
       <div class="cfg-field">
         <label>CNPJ (aparece nos PDFs)</label>
         <input type="text" id="cfgCnpj" placeholder="Ex: 33.685.686/0009-08">
+      </div>
+
+      <div class="cfg-section-title">Pré-visualização</div>
+      <div id="cfgPreviewHeader" style="display:flex;align-items:center;gap:14px;padding:20px;background:var(--soft);border-radius:14px;margin-bottom:6px;transition:all .2s ease;">
+        <div id="cfgPreviewLogoCircle" style="border-radius:22%;background:white;padding:6px;border:1px solid var(--border);box-shadow:0 2px 10px rgba(15,23,42,.08);overflow:hidden;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <img id="cfgPreviewLogoImg" src="" style="width:100%;height:100%;object-fit:contain;display:none;">
+          <span id="cfgPreviewLogoEmoji" style="font-size:1.8rem;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:1.15em;height:1.15em;vertical-align:-0.2em"><path d="M4 21V9l8-5 8 5v12"></path><path d="M4 21h16"></path><path d="M9 21v-7h6v7"></path></svg></span>
+        </div>
+        <div id="cfgPreviewText" style="min-width:0;">
+        <div id="cfgPreviewNome" style="font-family:var(--font-head);font-weight:700;color:var(--ink);line-height:1.15;"></div>
+        <div id="cfgPreviewSub" style="color:var(--muted);line-height:1.4;"></div>
+        </div>
+      </div>
+
+      <div class="cfg-section-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:1.15em;height:1.15em;vertical-align:-0.2em"><circle cx="12" cy="12" r="9"></circle><circle cx="9" cy="10" r="1.3" fill="currentColor"></circle><circle cx="14" cy="9" r="1.3" fill="currentColor"></circle><circle cx="15" cy="14" r="1.3" fill="currentColor"></circle></svg> Cor Principal</div>
+      <div class="cfg-field">
+        <label>Cor do Cabeçalho e Botões</label>
+        <div class="cfg-color-row">
+          <input type="color" id="cfgCorPicker" value="#2563eb" oninput="cfgSyncCor(this.value)">
+          <input type="text" id="cfgCor" placeholder="#2563eb" maxlength="7" oninput="cfgSyncCorText(this.value)">
+        </div>
+        <div class="cfg-preview-bar" id="cfgPreviewBar" style="background:linear-gradient(135deg,#2563eb,#1d4ed8);"></div>
       </div>
 
       <div class="cfg-section-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:1.15em;height:1.15em;vertical-align:-0.2em"><rect x="7" y="2" width="10" height="20" rx="2"></rect><path d="M11 18h2"></path></svg> WhatsApp do Financeiro</div>
@@ -1542,8 +1600,8 @@ textarea{resize:vertical;min-height:80px;}
   <div class="drawer-header">
     <button class="drawer-pin-btn" id="drawerPinBtn" onclick="toggleSidebarPin()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:1.15em;height:1.15em;vertical-align:-0.2em"><path d="M12 22s7-6.5 7-12a7 7 0 1 0-14 0c0 5.5 7 12 7 12Z"></path><circle cx="12" cy="10" r="2.5"></circle></svg> Fixar</button>
     <button class="drawer-close" onclick="closeDrawer()">✕</button>
-    <div class="drawer-logo-placeholder" id="drawerLogo"><img src="" alt="Pastorallis One" id="drawerLogoImg" style="width:100%;height:100%;object-fit:contain;"></div>
-    <div class="drawer-org-name" id="drawerOrgName">Pastorallis One</div>
+    <div class="drawer-logo-placeholder" id="drawerLogo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:1.15em;height:1.15em;vertical-align:-0.2em"><path d="M4 21V9l8-5 8 5v12"></path><path d="M4 21h16"></path><path d="M9 21v-7h6v7"></path></svg></div>
+    <div class="drawer-org-name" id="drawerOrgName">Gestão Sul 1</div>
     <div class="drawer-org-tag" id="drawerOrgTag">Portal de Formulários Pastorais</div>
   </div>
   <div class="drawer-nav">
@@ -1590,7 +1648,7 @@ textarea{resize:vertical;min-height:80px;}
   <div class="header-top">
     <div class="header-module-icon" id="headerIcon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:1.15em;height:1.15em;vertical-align:-0.2em"><path d="M3 11 12 4l9 7"></path><path d="M5 10v10h14V10"></path><path d="M9 20v-6h6v6"></path></svg></div>
     <div class="header-text">
-      <h1 id="headerTitle">Pastorallis One</h1>
+      <h1 id="headerTitle">Gestão Sul 1</h1>
       <div class="header-sub" id="headerSub">Portal de Formulários</div>
     </div>
   </div>
@@ -1613,13 +1671,17 @@ textarea{resize:vertical;min-height:80px;}
       <button class="home-menu-btn" onclick="openDrawer()" title="Abrir menu">
         <svg viewBox="0 0 24 24" fill="none" stroke="#1e293b" stroke-width="2.2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
       </button>
+      <button class="home-edit-btn" id="homeEditBtn" onclick="cfgOpen()" title="Editar logo, nome e cores" style="display:none;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#1e293b" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"></path></svg>
+      </button>
       <div class="home-header-inner">
         <div class="home-logo-circle">
-          <img id="appLogo" src="" alt="Pastorallis One">
+          <img id="appLogo" src="" alt="Logo da organização" style="display:none;">
+          <span id="appLogoFallback" class="logo-fallback-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:1.15em;height:1.15em;vertical-align:-0.2em"><path d="M4 21V9l8-5 8 5v12"></path><path d="M4 21h16"></path><path d="M9 21v-7h6v7"></path></svg></span>
         </div>
         <div class="home-header-text">
-          <div class="home-header-name">Pastorallis <span>One</span></div>
-          <div class="home-header-subtitle">Portal de Formulários Pastorais</div>
+          <div class="home-header-name">Gestão <span>Sul 1</span></div>
+          <div class="home-header-subtitle">Gestão inteligente para uma Igreja em movimento</div>
         </div>
       </div>
     </div>
@@ -2204,7 +2266,7 @@ textarea{resize:vertical;min-height:80px;}
 <!-- ══ ADMIN LOGIN MODAL ══ -->
 <div class="admin-overlay" id="adminOverlay">
   <div class="admin-modal">
-    <div class="admin-modal-logo"><img id="adminLogo" src="" alt="Pastorallis One"></div>
+    <div class="admin-modal-logo"><img id="adminLogo" src="" alt="Logo da organização" style="display:none;"><span id="adminLogoFallback" class="logo-fallback-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:1.15em;height:1.15em;vertical-align:-0.2em"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V8a4 4 0 0 1 8 0v3"></path></svg></span></div>
     <h2><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:1.15em;height:1.15em;vertical-align:-0.2em"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V8a4 4 0 0 1 8 0v3"></path></svg> Painel Administrativo</h2>
     <p>Acesso restrito. Informe suas credenciais.</p>
     <div class="field"><label>Usuário</label><input type="text" id="adminUser" placeholder="Usuário" style="text-transform:none;" autocomplete="username"></div>
@@ -2258,13 +2320,17 @@ const STORAGE_KEY = "cnbb_solicitacoes_passagem";
 const LGPD_CONSENT_KEY = "lgpd_aceite_v2";
 const CFG_KEY = 'app_config';
 const CFG_DEFAULTS_OBJ = {
-  nome: 'Sua Organização',
-  cnpj: ''
+  nome:      'Sua Organização',
+  subtitulo: 'Configure em Configurações ⚙️',
+  cnpj:      '',
+  cor:       '#2563eb',
+  logo:      '',
+  logoSize:  88,
+  nomeSize:  1.7,
+  subSize:   .78,
+  layout:    'centro'
 };
-// Marca do app (nome, cor e logo) é sempre fixa — "Pastorallis One" — e não é
-// mais personalizável por diocese. LOGO_SRC é um PNG do emoji 🐑 rasterizado
-// num canvas (ver mais abaixo), reaproveitado em <img> e nos PDFs (jsPDF
-// addImage exige uma imagem raster, não aceita SVG nem o glifo do emoji).
+function cfgLoadEarly(){ try{ return Object.assign({},CFG_DEFAULTS_OBJ,JSON.parse(localStorage.getItem(CFG_KEY)||'{}')); }catch(e){ return Object.assign({},CFG_DEFAULTS_OBJ); } }
 var LOGO_SRC = "";
 var adminLoggedIn = false;
 // Declaradas aqui (bem cedo) porque switchModule('home') já roda no boot,
@@ -2274,7 +2340,6 @@ var tenantAtual = null;   // { id, tenant_code, nome, cor_primaria, logo_url }
 var gs1UserRole = null;   // 'admin' | 'user' — vem do profile após login
 var gs1TenantId = null;   // uuid do tenant — necessário para gravar dados no Supabase
 var gs1UserNome = "";     // nome da pessoa logada (profile.nome) — mostrado no menu lateral
-var gs1UserEmail = "";    // e-mail de quem está logado — mostrado no menu e nos PDFs gerados por admin
 
 // ══════════════════════════════════════
 // SCHEMA DINÂMICO — MÓDULO RPA (prova de conceito)
@@ -2567,26 +2632,13 @@ async function sha256(str){
 }
 
 (function(){
-  // Rasteriza o emoji 🐑 num canvas para gerar um PNG fixo, usado como logo
-  // do app em todo lugar (cabecalho, painel admin, gaveta e PDFs). Nao ha
-  // mais logo por diocese -- a marca e sempre "Pastorallis One".
-  try{
-    var c = document.createElement('canvas');
-    c.width = 256; c.height = 256;
-    var ctx = c.getContext('2d');
-    ctx.font = '200px sans-serif';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText('🐑', 128, 148);
-    LOGO_SRC = c.toDataURL('image/png');
-  }catch(e){}
+  var b64 = "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";
+  LOGO_SRC = "data:image/jpeg;base64," + b64;
   document.addEventListener("DOMContentLoaded", function(){
-    var logoEl   = document.getElementById("appLogo");
-    var adminEl  = document.getElementById("adminLogo");
-    var drawerEl = document.getElementById("drawerLogoImg");
-    if(logoEl)   logoEl.src   = LOGO_SRC;
-    if(adminEl)  adminEl.src  = LOGO_SRC;
-    if(drawerEl) drawerEl.src = LOGO_SRC;
+    var logoEl  = document.getElementById("appLogo");
+    var adminEl = document.getElementById("adminLogo");
+    if(logoEl)  logoEl.src  = LOGO_SRC;
+    if(adminEl) adminEl.src = LOGO_SRC;
   });
 })();
 
@@ -2605,7 +2657,7 @@ var moduleColors = {
   home:    {hdr:["#2563eb","#3b82f6"], pb:""}
 };
 var moduleInfo = {
-  home:        {icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:1.15em;height:1.15em;vertical-align:-0.2em"><path d="M3 11 12 4l9 7"/><path d="M5 10v10h14V10"/><path d="M9 20v-6h6v6"/></svg>', title:"Pastorallis One",                 sub:"Portal de Formulários Pastorais"},
+  home:        {icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:1.15em;height:1.15em;vertical-align:-0.2em"><path d="M3 11 12 4l9 7"/><path d="M5 10v10h14V10"/><path d="M9 20v-6h6v6"/></svg>', title:"Gestão Sul 1",                     sub:"Portal de Formulários Pastorais"},
   passagem:    {icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:1.15em;height:1.15em;vertical-align:-0.2em"><path d="M22 2 11 13"/><path d="M22 2 15 22 11 13 2 9 22 2Z"/></svg>', title:"Solicitação de Passagens",    sub:"Preencha os dados da viagem"},
   contas:      {icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:1.15em;height:1.15em;vertical-align:-0.2em"><rect x="6" y="4" width="12" height="17" rx="2"/><path d="M9 4V3a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v1"/><path d="M9 11h6M9 15h6"/></svg>', title:"Prestação de Contas",              sub:"Registre gastos e comprovantes"},
   adiantamento:{icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:1.15em;height:1.15em;vertical-align:-0.2em"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="3"/><path d="M6 9h.01M18 15h.01"/></svg>', title:"Solicitação de Adiantamento",      sub:"Solicite verba antecipada"},
@@ -3251,13 +3303,13 @@ function pBuildPDF(){
 
   // CAPA
   doc.setFillColor(26,74,138);doc.rect(0,0,pw,3,'F');
-  try{doc.addImage(LOGO_SRC,'PNG',mg,10,22,22);}catch(e){}
+  try{doc.addImage(LOGO_SRC,'JPEG',mg,10,22,22);}catch(e){}
   doc.setFontSize(18);doc.setFont('helvetica','bold');doc.setTextColor(30,41,59);
   doc.text('SOLICITACAO DE PASSAGEM',mg+26,20);
   doc.setFontSize(9);doc.setFont('helvetica','normal');doc.setTextColor(100,116,139);
   doc.text(cfgLoad().nome,mg+26,27);
   doc.setFontSize(8);doc.setTextColor(148,163,184);
-  doc.text('Emitido em: '+dh+(linhaGeradoPor()?'   |   '+linhaGeradoPor():''),mg+26,33);
+  doc.text('Emitido em: '+dh,mg+26,33);
   doc.setDrawColor(226,232,240);doc.setLineWidth(0.4);doc.line(mg,40,pw-mg,40);
   y=48;
 
@@ -3522,10 +3574,10 @@ function cBuildPDFDoc(){
   function rwL(campoId,fallback,val){ rw(formSchemaLabel('contas',campoId,fallback),val); }
   // CAPA
   doc.setFillColor(26,74,138);doc.rect(0,0,pw,3,'F');
-  try{doc.addImage(LOGO_SRC,'PNG',mg,10,22,22);}catch(e){}
+  try{doc.addImage(LOGO_SRC,'JPEG',mg,10,22,22);}catch(e){}
   doc.setFontSize(18);doc.setFont('helvetica','bold');doc.setTextColor(30,41,59);doc.text('PRESTACAO DE CONTAS',mg+26,20);
   doc.setFontSize(9);doc.setFont('helvetica','normal');doc.setTextColor(100,116,139);doc.text(cfgLoad().nome,mg+26,27);
-  doc.setFontSize(8);doc.setTextColor(148,163,184);doc.text('Emitido em: '+dh+(linhaGeradoPor()?'   |   '+linhaGeradoPor():''),mg+26,33);
+  doc.setFontSize(8);doc.setTextColor(148,163,184);doc.text('Emitido em: '+dh,mg+26,33);
   doc.setDrawColor(226,232,240);doc.setLineWidth(0.4);doc.line(mg,40,pw-mg,40);
   y=48;
   // ATIVIDADE
@@ -3833,13 +3885,13 @@ function aBuildPDF(){
 
   // CAPA
   doc.setFillColor(180,83,9);doc.rect(0,0,pw,3,'F');
-  try{doc.addImage(LOGO_SRC,'PNG',mg,10,22,22);}catch(e){}
+  try{doc.addImage(LOGO_SRC,'JPEG',mg,10,22,22);}catch(e){}
   doc.setFontSize(18);doc.setFont('helvetica','bold');doc.setTextColor(30,41,59);
   doc.text('SOLICITACAO DE ADIANTAMENTO',mg+26,20);
   doc.setFontSize(9);doc.setFont('helvetica','normal');doc.setTextColor(100,116,139);
   doc.text(cfgLoad().nome,mg+26,27);
   doc.setFontSize(8);doc.setTextColor(148,163,184);
-  doc.text('Emitido em: '+dh+(linhaGeradoPor()?'   |   '+linhaGeradoPor():''),mg+26,33);
+  doc.text('Emitido em: '+dh,mg+26,33);
   doc.setDrawColor(226,232,240);doc.setLineWidth(0.4);doc.line(mg,40,pw-mg,40);
   y=48;
 
@@ -4121,12 +4173,11 @@ function rBuildPDFDoc(){
 
   // Header
   doc.setFillColor(6,95,70);doc.rect(0,0,pw,3,'F');
-  if(LOGO_SRC){try{doc.addImage(LOGO_SRC,'PNG',mg,8,20,20);}catch(e){}}
+  if(LOGO_SRC){try{doc.addImage(LOGO_SRC,'JPEG',mg,8,20,20);}catch(e){}}
   doc.setFontSize(14);doc.setFont('helvetica','bold');doc.setTextColor(30,41,59);
   doc.text('RECIBO DE PAGAMENTO AUTÔNOMO — RPA',pw/2+8,16,{align:'center'});
   doc.setFontSize(8);doc.setFont('helvetica','normal');doc.setTextColor(100,116,139);
   doc.text(''+cfgLoad().nome+'  |  CNPJ: '+cfgLoad().cnpj+'  |  Depto Financeiro',pw/2+8,23,{align:'center'});
-  if(linhaGeradoPor()){doc.setFontSize(7);doc.setTextColor(148,163,184);doc.text(linhaGeradoPor(),pw/2+8,28,{align:'center'});}
   doc.setDrawColor(226,232,240);doc.setLineWidth(0.4);doc.line(mg,31,pw-mg,31);
   y=38;
 
@@ -4383,14 +4434,18 @@ var CFG_DEFAULTS = CFG_DEFAULTS_OBJ;
 // do localStorage, que é compartilhado por qualquer diocese acessada no
 // mesmo navegador. É isso que garante que um administrador só vê os
 // próprios dados, mesmo trocando de diocese no mesmo computador.
-// Nome/CNPJ/WhatsApp continuam por diocese, mas só alimentam documentos
-// (PDFs) e o aviso de LGPD — não a marca visual do app, que é sempre fixa
-// "Pastorallis One" (ver cfgApply()).
 function cfgLoad(){
   var t = tenantAtual || {};
   return {
     nome:      t.nome || CFG_DEFAULTS.nome,
+    subtitulo: t.subtitulo || CFG_DEFAULTS.subtitulo,
     cnpj:      t.cnpj || '',
+    cor:       t.cor_primaria || CFG_DEFAULTS.cor,
+    logo:      t.logo_url || '',
+    logoSize:  t.logo_size || CFG_DEFAULTS.logoSize,
+    nomeSize:  t.nome_size || CFG_DEFAULTS.nomeSize,
+    subSize:   t.sub_size || CFG_DEFAULTS.subSize,
+    layout:    t.layout || CFG_DEFAULTS.layout,
     whatsapp:  t.whatsapp || ''
   };
 }
@@ -4400,11 +4455,72 @@ function cfgSaveData(obj){ localStorage.setItem(CFG_KEY,JSON.stringify(obj)); }
 
 function cfgApply(){
   var c=cfgLoad();
-  // LGPD elementos — nome real da diocese, usado como "Controlador dos dados"
+  // Nome e subtítulo na home
+  var hn=document.querySelector('.home-header-name');
+  if(hn){ hn.textContent=c.nome; }
+  var hs=document.querySelector('.home-header-subtitle');
+  if(hs) hs.textContent=c.subtitulo;
+  // moduleInfo
+  moduleInfo.home.title=c.nome;
+  moduleInfo.home.sub=c.subtitulo;
+  // LGPD elementos
   ['lgpdOrgNome','lgpdOrgNome2','lgpdOrgNome3','lgpdOrgNome4','lgpdOrgNome5'].forEach(function(id){var el=document.getElementById(id);if(el)el.textContent=c.nome;});
   var lcnpj=document.getElementById('lgpdOrgCnpj');if(lcnpj)lcnpj.textContent=c.cnpj;
+  // A aba do navegador mantém o nome do app (Pastorallis One) — não o nome
+  // de cada diocese/assinante, que vem de um cfg local por navegador e
+  // ficava "grudado" na aba mesmo antes de escolher a diocese.
+  // Admin header sub
+  var ahsub=document.getElementById('adminHeaderSub');
+  if(ahsub) ahsub.textContent='Solicitações — '+c.nome;
+  // Drawer: nome, subtítulo e rodapé
+  var dOrg=document.getElementById('drawerOrgName'); if(dOrg) dOrg.textContent=c.nome;
+  var dTag=document.getElementById('drawerOrgTag'); if(dTag) dTag.textContent=c.subtitulo;
+  // Logo em todos os círculos — funciona tanto pra aplicar quanto pra limpar/restaurar
+  LOGO_SRC = c.logo || "";
+  var imgs = document.querySelectorAll('#appLogo, #adminLogo');
+  imgs.forEach(function(el){
+    if(c.logo){ el.src = c.logo; el.style.display = 'block'; }
+    else{ el.src = ''; el.style.display = 'none'; }
+  });
+  document.querySelectorAll('.logo-fallback-icon').forEach(function(el){
+    el.style.display = c.logo ? 'none' : 'flex';
+  });
+  var dLogo=document.getElementById('drawerLogo');
+  if(dLogo){
+    dLogo.innerHTML = c.logo
+      ? '<img src="'+c.logo+'" style="width:100%;height:100%;object-fit:contain;">'
+      : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:1.15em;height:1.15em;vertical-align:-0.2em"><path d="M4 21V9l8-5 8 5v12"/><path d="M4 21h16"/><path d="M9 21v-7h6v7"/></svg>';
+  }
+  // Layout do cabeçalho — centralizado ou logo ao lado do nome
+  var hInner = document.querySelector('.home-header-inner');
+  if(hInner) hInner.classList.toggle('layout-lado', c.layout === 'lado');
+  // Tamanhos — logo, nome e subtítulo (ajuste manual em Configurações)
+  document.querySelectorAll('.home-logo-circle').forEach(function(el){
+    el.style.width = (c.logoSize||88)+'px'; el.style.height = (c.logoSize||88)+'px';
+  });
+  var hnEl=document.querySelector('.home-header-name');
+  if(hnEl) hnEl.style.fontSize = (c.nomeSize||1.7)+'rem';
+  if(hs) hs.style.fontSize = (c.subSize||.78)+'rem';
+  // Cor: atualiza variáveis CSS e gradientes dos headers
+  var col1=c.cor, col2=lightenHex(c.cor,30);
+  document.documentElement.style.setProperty('--ink',col1);
+  document.documentElement.style.setProperty('--accent',col2);
+  moduleColors.home.hdr=[col1,col2];
+  // Reaplica header se já estiver em algum módulo
+  if(currentModule){ switchModule(currentModule); }
   // WhatsApp
   window._cfgWpp = c.whatsapp || WPP;
+}
+
+function lightenHex(hex,amt){
+  try{
+    hex=hex.replace('#','');
+    var r=parseInt(hex.substring(0,2),16);
+    var g=parseInt(hex.substring(2,4),16);
+    var b=parseInt(hex.substring(4,6),16);
+    r=Math.min(255,r+amt);g=Math.min(255,g+amt);b=Math.min(255,b+amt);
+    return '#'+[r,g,b].map(function(v){return v.toString(16).padStart(2,'0');}).join('');
+  }catch(e){return hex;}
 }
 
 // ══ GERENCIAR EQUIPE ══
@@ -4535,16 +4651,94 @@ async function equipeRemover(memberId){
 function cfgOpen(){
   var c=cfgLoad();
   document.getElementById('cfgNome').value=c.nome;
+  document.getElementById('cfgSubtitulo').value=c.subtitulo;
   document.getElementById('cfgCnpj').value=c.cnpj;
+  document.getElementById('cfgCor').value=c.cor;
+  document.getElementById('cfgCorPicker').value=c.cor;
   document.getElementById('cfgWhatsapp').value=c.whatsapp;
   document.getElementById('cfgSenha').value='';
   document.getElementById('cfgSenhaConf').value='';
   document.getElementById('cfgSenhaErr').classList.remove('show');
+  cfgSyncCor(c.cor);
+  // Logo preview
+  var img=document.getElementById('cfgLogoPreviewImg');
+  var emoji=document.getElementById('cfgLogoEmoji');
+  if(c.logo){ img.src=c.logo; img.style.display='block'; emoji.style.display='none'; }
+  else{ img.style.display='none'; emoji.style.display=''; }
+  // Tamanhos
+  document.getElementById('cfgLogoSize').value = c.logoSize||88;
+  document.getElementById('cfgNomeSize').value = c.nomeSize||1.7;
+  document.getElementById('cfgSubSize').value = c.subSize||.78;
+  document.getElementById('cfgLayout').value = c.layout||'centro';
+  cfgAtualizarPreview();
   document.getElementById('cfgOverlay').classList.add('show');
+}
+
+// Atualiza a pré-visualização dentro do modal de Configurações em tempo real,
+// conforme a pessoa mexe nos controles de tamanho (sem precisar salvar antes de ver).
+function cfgAtualizarPreview(){
+  var logoSize = document.getElementById('cfgLogoSize').value;
+  var nomeSize = document.getElementById('cfgNomeSize').value;
+  var subSize = document.getElementById('cfgSubSize').value;
+  var layout = document.getElementById('cfgLayout').value;
+  var nome = document.getElementById('cfgNome').value.trim() || cfgLoad().nome;
+  var sub = document.getElementById('cfgSubtitulo').value.trim() || cfgLoad().subtitulo;
+
+  var header = document.getElementById('cfgPreviewHeader');
+  if(layout==='lado'){
+    header.style.flexDirection='row'; header.style.textAlign='left';
+  } else {
+    header.style.flexDirection='column'; header.style.textAlign='center';
+  }
+
+  var circle = document.getElementById('cfgPreviewLogoCircle');
+  circle.style.width = logoSize+'px'; circle.style.height = logoSize+'px';
+
+  var pImg = document.getElementById('cfgPreviewLogoImg');
+  var pEmoji = document.getElementById('cfgPreviewLogoEmoji');
+  var logoInput = document.getElementById('cfgLogoInput');
+  var logoAtual = (logoInput._pendingLogo!==undefined) ? logoInput._pendingLogo : cfgLoad().logo;
+  if(logoAtual){ pImg.src=logoAtual; pImg.style.display='block'; pEmoji.style.display='none'; }
+  else{ pImg.style.display='none'; pEmoji.style.display='flex'; }
+
+  document.getElementById('cfgPreviewNome').textContent = nome;
+  document.getElementById('cfgPreviewNome').style.fontSize = nomeSize+'rem';
+  document.getElementById('cfgPreviewSub').textContent = sub;
+  document.getElementById('cfgPreviewSub').style.fontSize = subSize+'rem';
 }
 
 function cfgClose(){
   document.getElementById('cfgOverlay').classList.remove('show');
+}
+
+function cfgHandleLogo(input){
+  var file=input.files[0]; if(!file) return;
+  var reader=new FileReader();
+  reader.onload=function(e){
+    var img=document.getElementById('cfgLogoPreviewImg');
+    img.src=e.target.result; img.style.display='block';
+    document.getElementById('cfgLogoEmoji').style.display='none';
+    input._pendingLogo=e.target.result;
+    cfgAtualizarPreview();
+  };
+  reader.readAsDataURL(file);
+  input.value='';
+}
+
+function cfgRemoveLogo(){
+  document.getElementById('cfgLogoPreviewImg').style.display='none';
+  document.getElementById('cfgLogoEmoji').style.display='';
+  document.getElementById('cfgLogoInput')._pendingLogo='';
+  cfgAtualizarPreview();
+}
+
+function cfgSyncCor(val){
+  document.getElementById('cfgCor').value=val;
+  document.getElementById('cfgCorPicker').value=val;
+  document.getElementById('cfgPreviewBar').style.background='linear-gradient(135deg,'+val+','+lightenHex(val,40)+')';
+}
+function cfgSyncCorText(val){
+  if(/^#[0-9a-fA-F]{6}$/.test(val)){ cfgSyncCor(val); }
 }
 
 function cfgSave(){
@@ -4556,13 +4750,21 @@ function cfgSave(){
 
   var c=cfgLoad();
   c.nome=document.getElementById('cfgNome').value.trim()||c.nome;
+  c.subtitulo=document.getElementById('cfgSubtitulo').value.trim()||c.subtitulo;
   c.cnpj=document.getElementById('cfgCnpj').value.trim()||c.cnpj;
+  c.cor=document.getElementById('cfgCor').value||c.cor;
   c.whatsapp=document.getElementById('cfgWhatsapp').value.trim()||c.whatsapp;
+  c.logoSize=parseFloat(document.getElementById('cfgLogoSize').value)||c.logoSize;
+  c.nomeSize=parseFloat(document.getElementById('cfgNomeSize').value)||c.nomeSize;
+  c.subSize=parseFloat(document.getElementById('cfgSubSize').value)||c.subSize;
+  c.layout=document.getElementById('cfgLayout').value||c.layout;
   if(senha){
     sha256(senha).then(function(hash){
       var c2=cfgLoad(); c2.senhaHash=hash; cfgSaveData(c2);
     });
   }
+  var logoInput=document.getElementById('cfgLogoInput');
+  if(logoInput._pendingLogo!==undefined) c.logo=logoInput._pendingLogo||'';
 
   cfgClose();
   var ld=document.getElementById('loadingOverlay'),msg=document.getElementById('loadingMsg');
@@ -4572,7 +4774,9 @@ function cfgSave(){
   // verdade agora. Nada mais fica em localStorage, que é compartilhado
   // por qualquer diocese acessada no mesmo navegador.
   sb.from('tenants').update({
-    nome: c.nome, cnpj: c.cnpj || null, whatsapp: c.whatsapp || null
+    nome: c.nome, cor_primaria: c.cor, logo_url: c.logo || null, subtitulo: c.subtitulo || null,
+    cnpj: c.cnpj || null, whatsapp: c.whatsapp || null,
+    logo_size: c.logoSize, nome_size: c.nomeSize, sub_size: c.subSize, layout: c.layout
   }).eq('id', gs1TenantId).then(function(res){
     if(res.error){
       console.error('Erro ao salvar configurações:', res.error.message);
@@ -4583,7 +4787,9 @@ function cfgSave(){
     // Atualiza o tenant em memória com os valores recém-salvos, sem
     // precisar recarregar a página.
     tenantAtual = Object.assign({}, tenantAtual, {
-      nome: c.nome, cnpj: c.cnpj || null, whatsapp: c.whatsapp || null
+      nome: c.nome, cor_primaria: c.cor, logo_url: c.logo || null, subtitulo: c.subtitulo || null,
+      cnpj: c.cnpj || null, whatsapp: c.whatsapp || null,
+      logo_size: c.logoSize, nome_size: c.nomeSize, sub_size: c.subSize, layout: c.layout
     });
     sessionStorage.setItem("gs1_tenant", JSON.stringify(tenantAtual));
     cfgApply();
@@ -4593,9 +4799,15 @@ function cfgSave(){
 }
 
 function cfgReset(){
-  if(!confirm('Restaurar nome, CNPJ e WhatsApp para o padrão? Esta ação não pode ser desfeita.')) return;
+  if(!confirm('Restaurar todas as configurações para o padrão? Esta ação não pode ser desfeita.')) return;
   if(!gs1TenantId){ cfgApply(); cfgClose(); return; }
-  var reset = { nome: CFG_DEFAULTS.nome, cnpj: null, whatsapp: null };
+  // Nome e subtítulo voltam pro padrão genérico (não ficam vazios — a
+  // diocese sempre precisa de um nome). O resto (logo, CNPJ, WhatsApp,
+  // tamanhos) fica em branco/padrão de verdade.
+  var reset = {
+    nome: CFG_DEFAULTS.nome, cor_primaria: CFG_DEFAULTS.cor, logo_url: null, subtitulo: CFG_DEFAULTS.subtitulo,
+    cnpj: null, whatsapp: null, logo_size: null, nome_size: null, sub_size: null, layout: null
+  };
   sb.from('tenants').update(reset).eq('id', gs1TenantId).then(function(res){
     if(res.error){ console.error('Erro ao restaurar configurações:', res.error.message); return; }
     tenantAtual = Object.assign({}, tenantAtual, reset);
@@ -4607,15 +4819,6 @@ function cfgReset(){
 
 // Substitui WPP pelo configurado
 function cfgWpp(){ return (cfgLoad().whatsapp)||WPP; }
-
-// Linha "Gerado por: nome (e-mail)" nos PDFs — só aparece quando quem gerou
-// o documento é de fato um administrador logado (gs1UserRole). Formulários
-// preenchidos por solicitantes comuns/anônimos não recebem essa linha,
-// porque não há um administrador específico a identificar.
-function linhaGeradoPor(){
-  if(gs1UserRole !== 'admin' || !gs1UserNome) return '';
-  return 'Gerado por: ' + gs1UserNome + (gs1UserEmail ? ' (' + gs1UserEmail + ')' : '');
-}
 
 // ── PONTO 5: EXPORTAR RELATÓRIO CONSOLIDADO (ADMIN) ──
 async function adminExportarRelatorio(){
@@ -4634,12 +4837,11 @@ async function adminExportarRelatorio(){
 
   // Cabeçalho
   doc.setFillColor(26,58,107);doc.rect(0,0,pw,24,'F');
-  if(LOGO_SRC){try{doc.addImage(LOGO_SRC,'PNG',mg,3,18,18);}catch(e){}}
+  if(LOGO_SRC){try{doc.addImage(LOGO_SRC,'JPEG',mg,3,18,18);}catch(e){}}
   doc.setFontSize(13);doc.setFont('helvetica','bold');doc.setTextColor(255,255,255);
   doc.text('RELATÓRIO CONSOLIDADO',pw/2,10,{align:'center'});
   doc.setFontSize(8);doc.setFont('helvetica','normal');
   doc.text(cfg.nome+'  |  Gerado em: '+dh,pw/2,18,{align:'center'});
-  if(linhaGeradoPor()){doc.setFontSize(7);doc.text(linhaGeradoPor(),pw/2,23,{align:'center'});}
   y=32;
 
   // Totalizadores
@@ -4829,11 +5031,9 @@ async function sairDoApp(){
   sessionStorage.removeItem("gs1_role");
   sessionStorage.removeItem("gs1_tenant_id");
   sessionStorage.removeItem("gs1_user_nome");
-  sessionStorage.removeItem("gs1_user_email");
   gs1UserRole = null;
   gs1TenantId = null;
   gs1UserNome = "";
-  gs1UserEmail = "";
   tenantAtual = null;
   adminLoggedIn = false;
   document.getElementById("appRoot").style.display = "none";
@@ -5809,12 +6009,26 @@ async function buscarTenant(){
   document.getElementById("loginEmail").focus();
 }
 
-// Cor e logo da tela de login são sempre fixos (marca "Pastorallis One"),
-// independente da diocese digitada — não personaliza mais por tenant.
-// data (nome da diocese encontrada pelo código) é usada só como confirmação
-// em texto em #tenantFoundBox, fora desta função.
 function aplicarBrandingTenant(data){
-  document.getElementById("loginSeal").classList.add("locked");
+  const seal = document.getElementById("loginSeal");
+  if(data.cor_primaria){
+    document.documentElement.style.setProperty("--accent", data.cor_primaria);
+    seal.style.setProperty("--seal-color", data.cor_primaria);
+  }
+  seal.classList.add("locked");
+  const img = document.getElementById("loginLogoImg");
+  const fallback = document.getElementById("loginLogoFallback");
+  if(data.logo_url){
+    img.src = data.logo_url; img.style.display = "block"; fallback.style.display = "none";
+  } else {
+    img.style.display = "none"; fallback.style.display = "flex";
+    fallback.textContent = "\u{1F411}";
+    fallback.style.fontSize = "";
+  }
+  // "Pastorallis One" é o nome do app e fica fixo aqui — não é substituído
+  // pelo nome da diocese/assinante.
+  var subEl = document.getElementById("loginSubtitle");
+  if(subEl) subEl.textContent = data.subtitulo || "Solicite, aprove e acompanhe tudo em um só lugar";
 }
 
 function voltarEtapaTenant(){
@@ -5895,13 +6109,11 @@ async function finalizarLoginComSessao(){
   gs1UserRole = profile.role;
   gs1TenantId = profile.tenant_id;
   gs1UserNome = profile.nome || "";
-  gs1UserEmail = user.email || "";
   tenantAtual = Object.assign({ id: profile.tenant_id }, profile.tenants);
   sessionStorage.setItem("gs1_tenant", JSON.stringify(tenantAtual));
   sessionStorage.setItem("gs1_role", gs1UserRole);
   sessionStorage.setItem("gs1_tenant_id", gs1TenantId);
   sessionStorage.setItem("gs1_user_nome", gs1UserNome);
-  sessionStorage.setItem("gs1_user_email", gs1UserEmail);
   aplicarBrandingTenant(tenantAtual);
   return true;
 }
@@ -5974,7 +6186,6 @@ async function fazerLogin(){
   gs1UserRole = profile.role;
   gs1TenantId = profile.tenant_id;
   gs1UserNome = profile.nome || "";
-  gs1UserEmail = authData.user.email || "";
   // Recarrega o tenant com TODOS os campos (inclusive os que a tela de
   // login pré-autenticação não expõe, como CNPJ e WhatsApp) — é o que
   // impede as configurações de uma diocese vazarem pra outra no mesmo
@@ -5984,7 +6195,6 @@ async function fazerLogin(){
   sessionStorage.setItem("gs1_role", gs1UserRole);
   sessionStorage.setItem("gs1_tenant_id", gs1TenantId);
   sessionStorage.setItem("gs1_user_nome", gs1UserNome);
-  sessionStorage.setItem("gs1_user_email", gs1UserEmail);
   entrarNoApp();
 }
 
@@ -6037,11 +6247,9 @@ async function criarConta(){
   gs1UserRole = "user";
   gs1TenantId = tenantAtual.id;
   gs1UserNome = nome;
-  gs1UserEmail = signUpData.user.email || "";
   sessionStorage.setItem("gs1_tenant", JSON.stringify(tenantAtual));
   sessionStorage.setItem("gs1_role", gs1UserRole);
   sessionStorage.setItem("gs1_tenant_id", gs1TenantId);
-  sessionStorage.setItem("gs1_user_email", gs1UserEmail);
   sessionStorage.setItem("gs1_user_nome", gs1UserNome);
   entrarNoApp();
 }
@@ -6058,11 +6266,13 @@ function entrarNoApp(){
     var diAdmin = document.getElementById("di-admin");
     if(diAdmin) diAdmin.style.display = "none";
   }
+  var homeEditBtn = document.getElementById("homeEditBtn");
+  if(homeEditBtn) homeEditBtn.style.display = (gs1UserRole === "admin") ? "flex" : "none";
   var duNome = document.getElementById("drawerUserNome");
   if(duNome){
     if(gs1UserNome){
       var papel = gs1UserRole === "admin" ? "Administrador" : "Usuário";
-      duNome.textContent = "👤 " + gs1UserNome + (gs1UserEmail ? " (" + gs1UserEmail + ")" : "") + " · " + papel;
+      duNome.textContent = "👤 " + gs1UserNome + " · " + papel;
       duNome.style.display = "block";
     } else {
       duNome.style.display = "none";
@@ -6110,7 +6320,6 @@ function entrarNoApp(){
     gs1UserRole = sessionStorage.getItem("gs1_role") || "user";
     gs1TenantId = sessionStorage.getItem("gs1_tenant_id") || null;
     gs1UserNome = sessionStorage.getItem("gs1_user_nome") || "";
-    gs1UserEmail = sessionStorage.getItem("gs1_user_email") || "";
     try{
       var tSalvo = sessionStorage.getItem("gs1_tenant");
       if(tSalvo) tenantAtual = JSON.parse(tSalvo);
@@ -6184,12 +6393,10 @@ async function entrarAnonimo(codigo){
   gs1UserRole = "user";
   gs1TenantId = tenantData.id;
   gs1UserNome = "Solicitante";
-  gs1UserEmail = ""; // solicitante anônimo não tem e-mail real
   sessionStorage.setItem("gs1_tenant", JSON.stringify(tenantAtual));
   sessionStorage.setItem("gs1_role", gs1UserRole);
   sessionStorage.setItem("gs1_tenant_id", gs1TenantId);
   sessionStorage.setItem("gs1_user_nome", gs1UserNome);
-  sessionStorage.setItem("gs1_user_email", gs1UserEmail);
   entrarNoApp();
 }
 </script>
