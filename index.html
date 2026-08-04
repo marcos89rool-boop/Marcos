@@ -2340,6 +2340,7 @@ var tenantAtual = null;   // { id, tenant_code, nome, cor_primaria, logo_url }
 var gs1UserRole = null;   // 'admin' | 'user' — vem do profile após login
 var gs1TenantId = null;   // uuid do tenant — necessário para gravar dados no Supabase
 var gs1UserNome = "";     // nome da pessoa logada (profile.nome) — mostrado no menu lateral
+var gs1UserEmail = "";    // e-mail de quem está logado — mostrado nos PDFs gerados por admin
 
 // ══════════════════════════════════════
 // SCHEMA DINÂMICO — MÓDULO RPA (prova de conceito)
@@ -3309,7 +3310,7 @@ function pBuildPDF(){
   doc.setFontSize(9);doc.setFont('helvetica','normal');doc.setTextColor(100,116,139);
   doc.text(cfgLoad().nome,mg+26,27);
   doc.setFontSize(8);doc.setTextColor(148,163,184);
-  doc.text('Emitido em: '+dh,mg+26,33);
+  doc.text('Emitido em: '+dh+(linhaGeradoPor()?'   |   '+linhaGeradoPor():''),mg+26,33);
   doc.setDrawColor(226,232,240);doc.setLineWidth(0.4);doc.line(mg,40,pw-mg,40);
   y=48;
 
@@ -3577,7 +3578,7 @@ function cBuildPDFDoc(){
   try{doc.addImage(LOGO_SRC,'JPEG',mg,10,22,22);}catch(e){}
   doc.setFontSize(18);doc.setFont('helvetica','bold');doc.setTextColor(30,41,59);doc.text('PRESTACAO DE CONTAS',mg+26,20);
   doc.setFontSize(9);doc.setFont('helvetica','normal');doc.setTextColor(100,116,139);doc.text(cfgLoad().nome,mg+26,27);
-  doc.setFontSize(8);doc.setTextColor(148,163,184);doc.text('Emitido em: '+dh,mg+26,33);
+  doc.setFontSize(8);doc.setTextColor(148,163,184);doc.text('Emitido em: '+dh+(linhaGeradoPor()?'   |   '+linhaGeradoPor():''),mg+26,33);
   doc.setDrawColor(226,232,240);doc.setLineWidth(0.4);doc.line(mg,40,pw-mg,40);
   y=48;
   // ATIVIDADE
@@ -3891,7 +3892,7 @@ function aBuildPDF(){
   doc.setFontSize(9);doc.setFont('helvetica','normal');doc.setTextColor(100,116,139);
   doc.text(cfgLoad().nome,mg+26,27);
   doc.setFontSize(8);doc.setTextColor(148,163,184);
-  doc.text('Emitido em: '+dh,mg+26,33);
+  doc.text('Emitido em: '+dh+(linhaGeradoPor()?'   |   '+linhaGeradoPor():''),mg+26,33);
   doc.setDrawColor(226,232,240);doc.setLineWidth(0.4);doc.line(mg,40,pw-mg,40);
   y=48;
 
@@ -4178,6 +4179,7 @@ function rBuildPDFDoc(){
   doc.text('RECIBO DE PAGAMENTO AUTÔNOMO — RPA',pw/2+8,16,{align:'center'});
   doc.setFontSize(8);doc.setFont('helvetica','normal');doc.setTextColor(100,116,139);
   doc.text(''+cfgLoad().nome+'  |  CNPJ: '+cfgLoad().cnpj+'  |  Depto Financeiro',pw/2+8,23,{align:'center'});
+  if(linhaGeradoPor()){doc.setFontSize(7);doc.setTextColor(148,163,184);doc.text(linhaGeradoPor(),pw/2+8,28,{align:'center'});}
   doc.setDrawColor(226,232,240);doc.setLineWidth(0.4);doc.line(mg,31,pw-mg,31);
   y=38;
 
@@ -4820,6 +4822,15 @@ function cfgReset(){
 // Substitui WPP pelo configurado
 function cfgWpp(){ return (cfgLoad().whatsapp)||WPP; }
 
+// Linha "Gerado por: nome (e-mail)" nos PDFs — só aparece quando quem gerou
+// o documento é de fato um administrador logado (gs1UserRole). Formulários
+// preenchidos por solicitantes comuns/anônimos não recebem essa linha,
+// porque não há um administrador específico a identificar.
+function linhaGeradoPor(){
+  if(gs1UserRole !== 'admin' || !gs1UserNome) return '';
+  return 'Gerado por: ' + gs1UserNome + (gs1UserEmail ? ' (' + gs1UserEmail + ')' : '');
+}
+
 // ── PONTO 5: EXPORTAR RELATÓRIO CONSOLIDADO (ADMIN) ──
 async function adminExportarRelatorio(){
   var arr=await adminLoadAll();
@@ -4842,6 +4853,7 @@ async function adminExportarRelatorio(){
   doc.text('RELATÓRIO CONSOLIDADO',pw/2,10,{align:'center'});
   doc.setFontSize(8);doc.setFont('helvetica','normal');
   doc.text(cfg.nome+'  |  Gerado em: '+dh,pw/2,18,{align:'center'});
+  if(linhaGeradoPor()){doc.setFontSize(7);doc.text(linhaGeradoPor(),pw/2,23,{align:'center'});}
   y=32;
 
   // Totalizadores
@@ -5031,9 +5043,11 @@ async function sairDoApp(){
   sessionStorage.removeItem("gs1_role");
   sessionStorage.removeItem("gs1_tenant_id");
   sessionStorage.removeItem("gs1_user_nome");
+  sessionStorage.removeItem("gs1_user_email");
   gs1UserRole = null;
   gs1TenantId = null;
   gs1UserNome = "";
+  gs1UserEmail = "";
   tenantAtual = null;
   adminLoggedIn = false;
   document.getElementById("appRoot").style.display = "none";
@@ -6109,11 +6123,13 @@ async function finalizarLoginComSessao(){
   gs1UserRole = profile.role;
   gs1TenantId = profile.tenant_id;
   gs1UserNome = profile.nome || "";
+  gs1UserEmail = user.email || "";
   tenantAtual = Object.assign({ id: profile.tenant_id }, profile.tenants);
   sessionStorage.setItem("gs1_tenant", JSON.stringify(tenantAtual));
   sessionStorage.setItem("gs1_role", gs1UserRole);
   sessionStorage.setItem("gs1_tenant_id", gs1TenantId);
   sessionStorage.setItem("gs1_user_nome", gs1UserNome);
+  sessionStorage.setItem("gs1_user_email", gs1UserEmail);
   aplicarBrandingTenant(tenantAtual);
   return true;
 }
@@ -6186,6 +6202,7 @@ async function fazerLogin(){
   gs1UserRole = profile.role;
   gs1TenantId = profile.tenant_id;
   gs1UserNome = profile.nome || "";
+  gs1UserEmail = authData.user.email || "";
   // Recarrega o tenant com TODOS os campos (inclusive os que a tela de
   // login pré-autenticação não expõe, como CNPJ e WhatsApp) — é o que
   // impede as configurações de uma diocese vazarem pra outra no mesmo
@@ -6195,6 +6212,7 @@ async function fazerLogin(){
   sessionStorage.setItem("gs1_role", gs1UserRole);
   sessionStorage.setItem("gs1_tenant_id", gs1TenantId);
   sessionStorage.setItem("gs1_user_nome", gs1UserNome);
+  sessionStorage.setItem("gs1_user_email", gs1UserEmail);
   entrarNoApp();
 }
 
@@ -6247,10 +6265,12 @@ async function criarConta(){
   gs1UserRole = "user";
   gs1TenantId = tenantAtual.id;
   gs1UserNome = nome;
+  gs1UserEmail = signUpData.user.email || "";
   sessionStorage.setItem("gs1_tenant", JSON.stringify(tenantAtual));
   sessionStorage.setItem("gs1_role", gs1UserRole);
   sessionStorage.setItem("gs1_tenant_id", gs1TenantId);
   sessionStorage.setItem("gs1_user_nome", gs1UserNome);
+  sessionStorage.setItem("gs1_user_email", gs1UserEmail);
   entrarNoApp();
 }
 
@@ -6320,6 +6340,7 @@ function entrarNoApp(){
     gs1UserRole = sessionStorage.getItem("gs1_role") || "user";
     gs1TenantId = sessionStorage.getItem("gs1_tenant_id") || null;
     gs1UserNome = sessionStorage.getItem("gs1_user_nome") || "";
+    gs1UserEmail = sessionStorage.getItem("gs1_user_email") || "";
     try{
       var tSalvo = sessionStorage.getItem("gs1_tenant");
       if(tSalvo) tenantAtual = JSON.parse(tSalvo);
@@ -6393,10 +6414,12 @@ async function entrarAnonimo(codigo){
   gs1UserRole = "user";
   gs1TenantId = tenantData.id;
   gs1UserNome = "Solicitante";
+  gs1UserEmail = ""; // solicitante anônimo não tem e-mail real
   sessionStorage.setItem("gs1_tenant", JSON.stringify(tenantAtual));
   sessionStorage.setItem("gs1_role", gs1UserRole);
   sessionStorage.setItem("gs1_tenant_id", gs1TenantId);
   sessionStorage.setItem("gs1_user_nome", gs1UserNome);
+  sessionStorage.setItem("gs1_user_email", gs1UserEmail);
   entrarNoApp();
 }
 </script>
