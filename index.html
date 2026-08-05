@@ -3322,8 +3322,6 @@ function pBuildPDF(){
   doc.text('Assinatura do Passageiro',mg+35,y+8,{align:'center'});
   doc.text('Assinatura do Responsável',pw-mg-35,y+8,{align:'center'});
   y+=14;
-  doc.text('Data: _____ / _____ / _________',mg,y);
-  y+=10;
 
   // RODAPÉ
   var tp=doc.internal.getNumberOfPages();
@@ -3561,8 +3559,6 @@ function cBuildPDFDoc(){
   doc.text('Assinatura do Solicitante',mg+35,y+8,{align:'center'});
   doc.text('Assinatura do Responsável',pw-mg-35,y+8,{align:'center'});
   y+=16;
-  doc.text('Data: _____ / _____ / _________',mg,y);
-  y+=10;
   // Rodapé relatório
   var tp=doc.internal.getNumberOfPages();
   for(var p=1;p<=tp;p++){doc.setPage(p);doc.setDrawColor(226,232,240);doc.setLineWidth(0.3);doc.line(mg,ph-9,pw-mg,ph-9);doc.setFont('helvetica','normal');doc.setFontSize(6.5);doc.setTextColor(148,163,184);doc.text(''+cfgLoad().nome+'  |  Prestacao de Contas  |  '+dh,mg,ph-5);doc.text('PAG. '+p+' / '+tp,pw-mg,ph-5,{align:'right'});}
@@ -3892,8 +3888,6 @@ function aBuildPDF(){
   doc.text('Assinatura do Solicitante',mg+35,y+8,{align:'center'});
   doc.text('Assinatura do Responsável',pw-mg-35,y+8,{align:'center'});
   y+=14;
-  doc.text('Data: _____ / _____ / _________',mg,y);
-  y+=10;
 
   // RODAPÉ
   var tp=doc.internal.getNumberOfPages();
@@ -4205,8 +4199,6 @@ function rBuildPDFDoc(){
   doc.text('Assinatura do Autônomo',mg+35,y+8,{align:'center'});
   doc.text('Assinatura Resp. Financeiro',pw-mg-35,y+8,{align:'center'});
   y+=16;
-  doc.text('Data: _____ / _____ / _________',mg,y);
-  y+=10;
 
   // RODAPÉ
   var tp=doc.internal.getNumberOfPages();
