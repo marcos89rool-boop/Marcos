@@ -3251,13 +3251,13 @@ function pBuildPDF(){
 
   // CAPA
   doc.setFillColor(26,74,138);doc.rect(0,0,pw,3,'F');
-  try{doc.addImage(LOGO_SRC,'PNG',mg,10,22,22);}catch(e){}
+  doc.setFontSize(8);doc.setFont('helvetica','normal');doc.setTextColor(148,163,184);doc.text('Pastorallis One',pw-mg,12,{align:'right'});
   doc.setFontSize(18);doc.setFont('helvetica','bold');doc.setTextColor(30,41,59);
-  doc.text('SOLICITACAO DE PASSAGEM',mg+26,20);
+  doc.text('SOLICITACAO DE PASSAGEM',mg,20);
   doc.setFontSize(9);doc.setFont('helvetica','normal');doc.setTextColor(100,116,139);
-  doc.text(cfgLoad().nome,mg+26,27);
+  doc.text(cfgLoad().nome,mg,27);
   doc.setFontSize(8);doc.setTextColor(148,163,184);
-  doc.text('Emitido em: '+dh+(linhaGeradoPor()?'   |   '+linhaGeradoPor():''),mg+26,33);
+  doc.text('Emitido em: '+dh+(linhaGeradoPor()?'   |   '+linhaGeradoPor():''),mg,33);
   doc.setDrawColor(226,232,240);doc.setLineWidth(0.4);doc.line(mg,40,pw-mg,40);
   y=48;
 
@@ -3522,10 +3522,10 @@ function cBuildPDFDoc(){
   function rwL(campoId,fallback,val){ rw(formSchemaLabel('contas',campoId,fallback),val); }
   // CAPA
   doc.setFillColor(26,74,138);doc.rect(0,0,pw,3,'F');
-  try{doc.addImage(LOGO_SRC,'PNG',mg,10,22,22);}catch(e){}
-  doc.setFontSize(18);doc.setFont('helvetica','bold');doc.setTextColor(30,41,59);doc.text('PRESTACAO DE CONTAS',mg+26,20);
-  doc.setFontSize(9);doc.setFont('helvetica','normal');doc.setTextColor(100,116,139);doc.text(cfgLoad().nome,mg+26,27);
-  doc.setFontSize(8);doc.setTextColor(148,163,184);doc.text('Emitido em: '+dh+(linhaGeradoPor()?'   |   '+linhaGeradoPor():''),mg+26,33);
+  doc.setFontSize(8);doc.setFont('helvetica','normal');doc.setTextColor(148,163,184);doc.text('Pastorallis One',pw-mg,12,{align:'right'});
+  doc.setFontSize(18);doc.setFont('helvetica','bold');doc.setTextColor(30,41,59);doc.text('PRESTACAO DE CONTAS',mg,20);
+  doc.setFontSize(9);doc.setFont('helvetica','normal');doc.setTextColor(100,116,139);doc.text(cfgLoad().nome,mg,27);
+  doc.setFontSize(8);doc.setTextColor(148,163,184);doc.text('Emitido em: '+dh+(linhaGeradoPor()?'   |   '+linhaGeradoPor():''),mg,33);
   doc.setDrawColor(226,232,240);doc.setLineWidth(0.4);doc.line(mg,40,pw-mg,40);
   y=48;
   // ATIVIDADE
@@ -3833,13 +3833,13 @@ function aBuildPDF(){
 
   // CAPA
   doc.setFillColor(180,83,9);doc.rect(0,0,pw,3,'F');
-  try{doc.addImage(LOGO_SRC,'PNG',mg,10,22,22);}catch(e){}
+  doc.setFontSize(8);doc.setFont('helvetica','normal');doc.setTextColor(148,163,184);doc.text('Pastorallis One',pw-mg,12,{align:'right'});
   doc.setFontSize(18);doc.setFont('helvetica','bold');doc.setTextColor(30,41,59);
-  doc.text('SOLICITACAO DE ADIANTAMENTO',mg+26,20);
+  doc.text('SOLICITACAO DE ADIANTAMENTO',mg,20);
   doc.setFontSize(9);doc.setFont('helvetica','normal');doc.setTextColor(100,116,139);
-  doc.text(cfgLoad().nome,mg+26,27);
+  doc.text(cfgLoad().nome,mg,27);
   doc.setFontSize(8);doc.setTextColor(148,163,184);
-  doc.text('Emitido em: '+dh+(linhaGeradoPor()?'   |   '+linhaGeradoPor():''),mg+26,33);
+  doc.text('Emitido em: '+dh+(linhaGeradoPor()?'   |   '+linhaGeradoPor():''),mg,33);
   doc.setDrawColor(226,232,240);doc.setLineWidth(0.4);doc.line(mg,40,pw-mg,40);
   y=48;
 
@@ -4121,12 +4121,12 @@ function rBuildPDFDoc(){
 
   // Header
   doc.setFillColor(6,95,70);doc.rect(0,0,pw,3,'F');
-  if(LOGO_SRC){try{doc.addImage(LOGO_SRC,'PNG',mg,8,20,20);}catch(e){}}
+  doc.setFontSize(7);doc.setFont('helvetica','normal');doc.setTextColor(148,163,184);doc.text('Pastorallis One',pw-mg,9,{align:'right'});
   doc.setFontSize(14);doc.setFont('helvetica','bold');doc.setTextColor(30,41,59);
-  doc.text('RECIBO DE PAGAMENTO AUTÔNOMO — RPA',pw/2+8,16,{align:'center'});
+  doc.text('RECIBO DE PAGAMENTO AUTÔNOMO — RPA',pw/2,16,{align:'center'});
   doc.setFontSize(8);doc.setFont('helvetica','normal');doc.setTextColor(100,116,139);
-  doc.text(''+cfgLoad().nome+'  |  CNPJ: '+cfgLoad().cnpj+'  |  Depto Financeiro',pw/2+8,23,{align:'center'});
-  if(linhaGeradoPor()){doc.setFontSize(7);doc.setTextColor(148,163,184);doc.text(linhaGeradoPor(),pw/2+8,28,{align:'center'});}
+  doc.text(''+cfgLoad().nome+'  |  CNPJ: '+cfgLoad().cnpj+'  |  Depto Financeiro',pw/2,23,{align:'center'});
+  if(linhaGeradoPor()){doc.setFontSize(7);doc.setTextColor(148,163,184);doc.text(linhaGeradoPor(),pw/2,28,{align:'center'});}
   doc.setDrawColor(226,232,240);doc.setLineWidth(0.4);doc.line(mg,31,pw-mg,31);
   y=38;
 
@@ -4634,7 +4634,7 @@ async function adminExportarRelatorio(){
 
   // Cabeçalho
   doc.setFillColor(26,58,107);doc.rect(0,0,pw,24,'F');
-  if(LOGO_SRC){try{doc.addImage(LOGO_SRC,'PNG',mg,3,18,18);}catch(e){}}
+  doc.setFontSize(7);doc.setFont('helvetica','normal');doc.setTextColor(191,219,254);doc.text('Pastorallis One',pw-mg,7,{align:'right'});
   doc.setFontSize(13);doc.setFont('helvetica','bold');doc.setTextColor(255,255,255);
   doc.text('RELATÓRIO CONSOLIDADO',pw/2,10,{align:'center'});
   doc.setFontSize(8);doc.setFont('helvetica','normal');
