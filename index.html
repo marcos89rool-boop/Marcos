@@ -2239,18 +2239,9 @@ textarea{resize:vertical;min-height:80px;}
 }
 #module-eventos .wrap{max-width:1180px;margin:0 auto;padding:0 16px 120px}
 
-/* ---------- cabeçalho ---------- */
-#module-eventos header.topo{background:var(--alto);border-bottom:1px solid var(--linha);position:relative}
-#module-eventos .evt-menu-btn{position:absolute;top:16px;left:14px;width:42px;height:42px;border-radius:12px;background:#f1f5f9;border:1px solid var(--linha);display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:2;}
-#module-eventos .topo .wrap{padding-left:60px}
-#module-eventos .topo .wrap{padding-top:16px;padding-bottom:18px}
-#module-eventos .marca{display:flex;align-items:center;gap:12px}
-#module-eventos .marca svg{width:44px;height:44px;flex:none;border-radius:12px}
-#module-eventos .marca .nome{font-weight:800;font-size:clamp(20px,5vw,25px);letter-spacing:-.025em;line-height:1.1}
-#module-eventos .marca .nome i{font-style:normal;color:var(--teal)}
-#module-eventos .marca .tag{font-size:12.5px;color:var(--tinta2);font-weight:500;margin-top:1px}
-#module-eventos .risca{height:3px;border-radius:2px;background:var(--teal);margin:14px 0 0}
-#module-eventos .topo p{margin:12px 0 0;color:var(--tinta2);font-size:14px;max-width:64ch}
+/* ---------- dados do evento ---------- */
+#module-eventos .bloco-evento{margin-top:20px}
+#module-eventos .bloco-evento .ajuda{margin:0;color:var(--tinta2);font-size:14px;max-width:64ch}
 #module-eventos .evento-linha{display:grid;grid-template-columns:1fr;gap:8px;margin-top:14px}
 @media(min-width:640px){#module-eventos .evento-linha{grid-template-columns:2fr 1fr 1.4fr}}
 #module-eventos .evento-linha input{
@@ -2440,7 +2431,7 @@ textarea{resize:vertical;min-height:80px;}
 #module-eventos .so-impressao{display:none}
 @media print{
   #module-eventos{background:#fff}
-  #module-eventos header.topo, #module-eventos .coluna-a, #module-eventos .coluna-b, #module-eventos .bloco-final, #module-eventos .aviso{display:none!important}
+  #module-eventos .bloco-evento, #module-eventos .coluna-a, #module-eventos .coluna-b, #module-eventos .bloco-final, #module-eventos .aviso{display:none!important}
   #module-eventos .so-impressao{display:block}
   #module-eventos .so-impressao h1{font-size:22px;margin:0 0 4px}
   #module-eventos .so-impressao .sub{color:#444;font-size:13px;margin-bottom:16px}
@@ -2451,50 +2442,18 @@ textarea{resize:vertical;min-height:80px;}
 }
 </style>
 <div class="module" id="module-eventos">
-<header class="topo">
-  <button class="evt-menu-btn" onclick="openDrawer()" title="Abrir menu">
-    <svg viewBox="0 0 24 24" fill="none" stroke="#1e293b" stroke-width="2.2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
-  </button>
-  <div class="wrap">
-    <div class="marca">
-      <svg viewBox="0 0 64 64" role="img" aria-label="Pastorallis">
-        <rect width="64" height="64" rx="14.5" fill="#149EB8"/>
-        <g fill="#fff">
-          <rect x="23.4" y="49" width="3.8" height="7.9" rx="1.9"/>
-          <rect x="36.8" y="49" width="3.8" height="7.9" rx="1.9"/>
-          <circle cx="31.90" cy="11.00" r="5.90"/>
-          <circle cx="40.50" cy="13.52" r="5.90"/>
-          <circle cx="46.36" cy="20.29" r="5.90"/>
-          <circle cx="47.64" cy="29.16" r="5.90"/>
-          <circle cx="43.92" cy="37.31" r="5.90"/>
-          <circle cx="36.38" cy="42.16" r="5.90"/>
-          <circle cx="27.42" cy="42.16" r="5.90"/>
-          <circle cx="19.88" cy="37.31" r="5.90"/>
-          <circle cx="16.16" cy="29.16" r="5.90"/>
-          <circle cx="17.44" cy="20.29" r="5.90"/>
-          <circle cx="23.30" cy="13.52" r="5.90"/>
-          <circle cx="31.90" cy="26.90" r="16.90"/>
-        </g>
-        <circle cx="31.9" cy="30.8" r="12.7" fill="#0F6B80"/>
-        <circle cx="27.6" cy="29" r="1.85" fill="#fff"/>
-        <circle cx="36.3" cy="29" r="1.85" fill="#fff"/>
-      </svg>
-      <div>
-        <div class="nome">Pastorallis <i>Eventos</i></div>
-        <div class="tag">Simples de usar, pronto para servir.</div>
-      </div>
-    </div>
-    <div class="risca"></div>
-    <p>Lance os custos do evento e descubra quanto cobrar por inscrição e quantas pessoas precisam se inscrever para o evento se pagar.</p>
-    <div class="evento-linha">
-      <input id="ev-nome" placeholder="Nome do evento" autocomplete="off">
-      <input id="ev-data" type="date">
-      <input id="ev-local" placeholder="Local / paróquia" autocomplete="off">
-    </div>
-  </div>
-</header>
 
 <div class="wrap">
+
+<!-- ========== DADOS DO EVENTO: largura total, no topo ========== -->
+<section class="bloco bloco-evento">
+  <p class="ajuda">Lance os custos do evento e descubra quanto cobrar por inscrição e quantas pessoas precisam se inscrever para o evento se pagar.</p>
+  <div class="evento-linha">
+    <input id="ev-nome" placeholder="Nome do evento" autocomplete="off">
+    <input id="ev-data" type="date">
+    <input id="ev-local" placeholder="Local / paróquia" autocomplete="off">
+  </div>
+</section>
 
 <!-- ========== PAINEL DE CONTROLE: largura total, no topo ========== -->
 <section class="bloco bloco-painel">
@@ -3670,7 +3629,7 @@ function switchModule(mod) {
   // Na Home, o menu fica preso dentro do próprio cabeçalho (rola junto com a página);
   // nas outras telas, usa o botão flutuante de sempre.
   var hamburgerFixo = document.getElementById("hamburgerBtn");
-  if(hamburgerFixo) hamburgerFixo.style.display = (mod==="home"||mod==="eventos") ? "none" : "flex";
+  if(hamburgerFixo) hamburgerFixo.style.display = (mod==="home") ? "none" : "flex";
 
   // Marca item ativo no menu drawer
   document.querySelectorAll(".drawer-item").forEach(function(b){b.classList.remove("active");});
@@ -3698,7 +3657,7 @@ function switchModule(mod) {
 
   // Show/hide top header
   var hdrEl = document.getElementById("appHeader");
-  if(hdrEl){ if(mod==="home"||mod==="eventos"){ hdrEl.classList.remove("show"); document.body.classList.remove("has-fixed-header"); } else { hdrEl.classList.add("show"); document.body.classList.add("has-fixed-header"); } }
+  if(hdrEl){ if(mod==="home"){ hdrEl.classList.remove("show"); document.body.classList.remove("has-fixed-header"); } else { hdrEl.classList.add("show"); document.body.classList.add("has-fixed-header"); } }
   if(mod==="home"||mod==="admin"||mod==="eventos"){ pw.style.display="none"; }
   else {
     pw.style.display="block";
