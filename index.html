@@ -1575,7 +1575,7 @@ textarea{resize:vertical;min-height:80px;}
       <div class="drawer-item-arrow">›</div>
     </div>
     <div class="drawer-item" id="di-eventos" onclick="drawerGo('eventos')">
-      <div class="drawer-item-label">Calcular Evento</div>
+      <div class="drawer-item-label">Calcule seu Encontro</div>
       <div class="drawer-item-arrow">›</div>
     </div>
     <div class="drawer-section-label">Conta</div>
@@ -2265,8 +2265,7 @@ textarea{resize:vertical;min-height:80px;}
 @media(min-width:980px){
   #module-eventos .colunas{grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);align-items:start}
   #module-eventos .coluna-a{grid-column:1;grid-row:1}
-  #module-eventos .coluna-c{grid-column:1;grid-row:2}
-  #module-eventos .coluna-b{grid-column:2;grid-row:1 / span 2;position:sticky;top:16px}
+  #module-eventos .coluna-b{grid-column:2;grid-row:1;position:sticky;top:16px}
 }
 #module-eventos .bloco{
   background:var(--alto);border:1px solid var(--linha);border-radius:var(--r);
@@ -2428,18 +2427,18 @@ textarea{resize:vertical;min-height:80px;}
   color:var(--teal-esc);padding:2px 6px;border-radius:5px;display:inline-block;margin-top:4px}
 #module-eventos .acoes{display:flex;gap:8px;flex-wrap:wrap}
 #module-eventos .acoes .btn{flex:1 1 auto;text-align:center;min-width:130px}
+#module-eventos .bloco-final{margin-top:4px}
 #module-eventos .aviso{position:fixed;left:50%;transform:translateX(-50%);bottom:24px;background:var(--tinta);
   color:#fff;padding:12px 18px;border-radius:999px;font-size:14px;font-weight:500;
   box-shadow:0 8px 24px rgba(30,41,59,.25);opacity:0;pointer-events:none;transition:opacity .2s;z-index:9}
 #module-eventos .aviso.ver{opacity:1}
-#module-eventos footer.pe{text-align:center;color:var(--tinta2);font-size:12px;padding:8px 0 0}
 @media (prefers-reduced-motion:reduce){#module-eventos *{transition:none!important;animation:none!important}}
 
 /* ---------- impressão ---------- */
 #module-eventos .so-impressao{display:none}
 @media print{
   #module-eventos{background:#fff}
-  #module-eventos header.topo, #module-eventos .coluna-a, #module-eventos .coluna-b, #module-eventos .coluna-c, #module-eventos .acoes, #module-eventos .aviso, #module-eventos footer.pe{display:none!important}
+  #module-eventos header.topo, #module-eventos .coluna-a, #module-eventos .coluna-b, #module-eventos .bloco-final, #module-eventos .aviso{display:none!important}
   #module-eventos .so-impressao{display:block}
   #module-eventos .so-impressao h1{font-size:22px;margin:0 0 4px}
   #module-eventos .so-impressao .sub{color:#444;font-size:13px;margin-bottom:16px}
@@ -2626,26 +2625,29 @@ textarea{resize:vertical;min-height:80px;}
       </table>
     </section>
 
-    <footer class="pe">Linha Pastorallis · funciona no celular e no computador, com ou sem internet</footer>
   </div>
 
-  <!-- ========== COLUNA C: dados e explicações (no fim, no celular) ========== -->
-  <div class="coluna-c">
-    <section class="bloco">
-      <h2>Seus dados</h2>
-      <p class="ajuda">Tudo fica salvo neste aparelho. Exporte um arquivo para levar o evento a outro celular ou computador.</p>
-      <div class="acoes">
-        <button class="btn claro" id="ac-copiar">Copiar resumo</button>
-        <button class="btn claro" id="ac-exportar">Exportar arquivo</button>
-        <button class="btn claro" id="ac-importar">Importar arquivo</button>
-        <button class="btn claro" id="ac-imprimir">Imprimir / PDF</button>
-        <button class="btn claro" id="ac-limpar">Começar do zero</button>
-      </div>
-      <input type="file" id="arquivo" accept=".json,application/json" hidden>
-    </section>
-    <section class="bloco">
-      <h2>O que cada número significa</h2>
-      <dl class="glossario">
+</div>
+
+<!-- ========== Seus dados: fora da grade, coluna única, perto do fim ========== -->
+<section class="bloco bloco-final">
+  <h2>Seus dados</h2>
+  <p class="ajuda">Tudo fica salvo neste aparelho. Exporte um arquivo para levar o evento a outro celular ou computador.</p>
+  <div class="acoes">
+    <button class="btn claro" id="ac-copiar">Copiar resumo</button>
+    <button class="btn claro" id="ac-exportar">Exportar arquivo</button>
+    <button class="btn claro" id="ac-importar">Importar arquivo</button>
+    <button class="btn claro" id="ac-imprimir">Gerar PDF</button>
+    <button class="btn claro" id="ac-whatsapp">Enviar PDF pelo WhatsApp</button>
+    <button class="btn claro" id="ac-limpar">Começar do zero</button>
+  </div>
+  <input type="file" id="arquivo" accept=".json,application/json" hidden>
+</section>
+
+<!-- ========== Glossário: fora da grade, coluna única, no fim ========== -->
+<section class="bloco bloco-final">
+  <h2>O que cada número significa</h2>
+  <dl class="glossario">
         <dt>Margem por inscrito</dt>
         <dd>É o que sobra de cada inscrição depois de tirar a taxa da plataforma e o custo daquela pessoa (comida, material, brinde). Esse pedaço não é lucro: é o dinheiro disponível para ir pagando os custos fixos do evento, que já estão contratados independentemente de quem vier.
           <code>margem = inscrição − taxa − custo por pessoa</code></dd>
@@ -2663,10 +2665,8 @@ textarea{resize:vertical;min-height:80px;}
         <dt>Quanto cobrar por tamanho de público</dt>
         <dd>Ninguém sabe de antemão quantos virão, então a tabela mostra o valor necessário em vários cenários. Público menor, inscrição mais cara: os custos fixos são os mesmos e se dividem entre menos gente. Serve para decidir com que público você trabalha no cartaz e até onde dá para ceder.</dd>
       </dl>
-    </section>
-  </div>
+</section>
 
-</div>
 </div>
 
 <div class="so-impressao" id="impressao"></div>
@@ -2930,6 +2930,132 @@ function montarImpressao(c, n, resultado){
     '<table><tr><td>Resultado do evento</td><td>'+brl(resultado)+'</td></tr></table>';
 }
 
+/* ============ PDF (mesmo padrão visual dos outros relatórios do app) ============ */
+function evtBuildPDF(){
+  const c = calcular();
+  const jsPDF = window.jspdf.jsPDF;
+  const doc = new jsPDF({unit:'mm',format:'a4'});
+  const pw = doc.internal.pageSize.getWidth(), ph = doc.internal.pageSize.getHeight();
+  const mg = 15, cw = pw-mg*2;
+  let y = mg;
+  const hoje = new Date();
+  const dh = String(hoje.getDate()).padStart(2,'0')+'/'+String(hoje.getMonth()+1).padStart(2,'0')+'/'+hoje.getFullYear();
+  function chk(n){ if(!n)n=20; if(y+n>ph-mg){ doc.addPage(); y=mg; phdr(); } }
+  function phdr(){
+    doc.setFontSize(7);doc.setFont('helvetica','bold');doc.setTextColor(100,116,139);
+    doc.text((st.evento.nome||'Calcule seu Encontro')+'  |  CALCULO DE EVENTO',mg,8);
+    doc.text('PAG. '+doc.internal.getCurrentPageInfo().pageNumber,pw-mg,8,{align:'right'});
+    doc.setDrawColor(20,158,184);doc.setLineWidth(0.6);doc.line(mg,11,pw-mg,11);y=Math.max(y,16);
+  }
+  function sh(title){
+    chk(12);doc.setFillColor(20,158,184);doc.rect(mg,y,2.2,6,'F');
+    doc.setFontSize(9.5);doc.setFont('helvetica','bold');doc.setTextColor(30,41,59);
+    doc.text(title.toUpperCase(),mg+5,y+5);y+=8;
+    doc.setDrawColor(226,232,240);doc.setLineWidth(0.25);doc.line(mg,y,pw-mg,y);y+=4;
+  }
+  function rw(label,value){
+    if(value===''||value==null)return;chk(7);
+    doc.setFontSize(8);doc.setFont('helvetica','bold');doc.setTextColor(100,116,139);
+    doc.text(label.toUpperCase()+':',mg+2,y);
+    doc.setFont('helvetica','normal');doc.setTextColor(30,41,59);
+    const lines=doc.splitTextToSize(String(value),cw-70);
+    doc.text(lines,mg+70,y);y+=Math.max(6,lines.length*5);
+  }
+
+  // CAPA — mesmo layout usado nos outros relatórios (passagem, contas, adiantamento, RPA)
+  doc.setFillColor(20,158,184);doc.rect(0,0,pw,3,'F');
+  doc.setFontSize(8);doc.setFont('helvetica','normal');doc.setTextColor(148,163,184);
+  doc.text('Pastorallis One',pw-mg,12,{align:'right'});
+  doc.setFontSize(18);doc.setFont('helvetica','bold');doc.setTextColor(30,41,59);
+  doc.text('CALCULO DE EVENTO',mg,20);
+  doc.setFontSize(9);doc.setFont('helvetica','normal');doc.setTextColor(100,116,139);
+  doc.text(cfgLoad().nome,mg,27);
+  doc.setFontSize(8);doc.setTextColor(148,163,184);
+  doc.text('Emitido em: '+dh+(linhaGeradoPor()?'   |   '+linhaGeradoPor():''),mg,33);
+  doc.setDrawColor(226,232,240);doc.setLineWidth(0.4);doc.line(mg,40,pw-mg,40);
+  y=48;
+
+  sh(st.evento.nome || 'Evento sem nome');
+  if(st.evento.data) rw('Data', dataBR(st.evento.data));
+  if(st.evento.local) rw('Local', st.evento.local);
+
+  sh('Valor da inscrição');
+  rw('Valor da inscrição', brl(c.preco));
+  if(st.modo==='pessoas'){
+    rw('Público esperado', c.pessoas+(c.pessoas===1?' pessoa':' pessoas')+(c.meta?' · sobra desejada '+brl(c.meta):''));
+    rw('Taxa da plataforma', pct(c.taxa)+' = '+brl(c.taxaPP)+' por inscrição');
+  }else{
+    rw('Valor limpo desejado', brl(st.desejado)+' (taxa de '+pct(c.taxa)+' = '+brl(c.taxaPP)+')');
+  }
+  rw('Custo por participante', brl(c.varPP));
+  rw('Margem por inscrito', brl(c.margem));
+  rw('Mínimo de inscritos', c.minimo!=null?c.minimo:'—');
+
+  const fixosComValor = st.fixos.filter(l=>l.desc||l.valor);
+  if(fixosComValor.length){
+    sh('Custos fixos — total '+brl(c.totFixos));
+    fixosComValor.forEach(l=>rw(l.desc||'Custo', brl(l.valor||0)+(l.data?'  ('+dataBR(l.data)+')':'')));
+  }
+  const varsComValor = st.variaveis.filter(l=>l.desc||l.valor);
+  if(varsComValor.length){
+    sh('Custos por pessoa — total '+brl(c.varPP));
+    varsComValor.forEach(l=>rw(l.desc||'Custo', brl(l.valor||0)+(l.data?'  ('+dataBR(l.data)+')':'')));
+  }
+
+  const n = Math.max(0, Math.round(st.sim));
+  const receita = n*c.preco, taxaT = receita*c.taxa, varT = n*c.varPP;
+  const resultado = receita - taxaT - varT - c.totFixos;
+  sh('Simulação com '+n+' inscritos');
+  rw('Receita das inscrições', brl(receita));
+  rw('Taxa da plataforma', '−'+brl(taxaT));
+  rw('Custos variáveis', '−'+brl(varT));
+  rw('Custos fixos', '−'+brl(c.totFixos));
+  rw(resultado>=0?'Sobra para a pastoral':'Falta cobrir', brl(resultado));
+
+  // RODAPÉ — igual aos outros relatórios
+  const tp = doc.internal.getNumberOfPages();
+  for(let p=1;p<=tp;p++){
+    doc.setPage(p);
+    doc.setDrawColor(226,232,240);doc.setLineWidth(0.3);doc.line(mg,ph-9,pw-mg,ph-9);
+    doc.setFont('helvetica','normal');doc.setFontSize(6.5);doc.setTextColor(148,163,184);
+    doc.text(cfgLoad().nome+'  |  Calculo de Evento  |  '+dh,mg,ph-5);
+    doc.text('PAG. '+p+' / '+tp,pw-mg,ph-5,{align:'right'});
+  }
+
+  const nome = 'Evento_'+(st.evento.nome||'Calculo').replace(/\s+/g,'_').replace(/[^\w\-]/g,'')+'_'+dh.replace(/\//g,'-')+'.pdf';
+  return {doc, nome};
+}
+
+function evtGerarPDF(){
+  try{
+    const res = evtBuildPDF();
+    res.doc.save(res.nome);
+    avisar('PDF gerado!');
+  }catch(err){ avisar('Erro ao gerar PDF: '+err.message); }
+}
+
+function evtFallbackWPP(){
+  const t = textoResumo()+'\n\nPDF salvo: baixado agora\nAnexe o arquivo nesta conversa.';
+  window.open('https://wa.me/'+cfgWpp()+'?text='+encodeURIComponent(t),'_blank');
+}
+
+function evtGerarEEnviar(){
+  try{
+    const res = evtBuildPDF();
+    const blob = res.doc.output('blob');
+    const canShare = window.isSecureContext && navigator.canShare;
+    function fallback(){ res.doc.save(res.nome); setTimeout(()=>{ evtFallbackWPP(); avisar('PDF baixado e WhatsApp aberto — anexe o arquivo na conversa.'); },500); }
+    try{
+      const file = new File([blob], res.nome, {type:'application/pdf'});
+      if(canShare && navigator.canShare({files:[file]})){
+        navigator.share({title:'Cálculo de Evento — '+(st.evento.nome||''), text:'Cálculo de Evento — '+(st.evento.nome||'Pastorallis'), files:[file]})
+          .then(()=>avisar('PDF enviado!'))
+          .catch(err=>{ if(err.name!=='AbortError') fallback(); });
+      }else{ fallback(); }
+    }catch(e){ fallback(); }
+  }catch(err){ avisar('Erro ao gerar PDF: '+err.message); }
+}
+
 function avisar(msg){
   const a = $('#aviso');
   a.textContent = msg; a.classList.add('ver');
@@ -3068,7 +3194,8 @@ function ligarAcoes(){
     r.readAsText(f); e.target.value = '';
   };
 
-  $('#ac-imprimir').onclick = () => { try{ window.print(); }catch(e){ avisar('Impressão indisponível aqui'); } };
+  $('#ac-imprimir').onclick = evtGerarPDF;
+  $('#ac-whatsapp').onclick = evtGerarEEnviar;
 
   // começar do zero: confirmação em dois toques (não depende de janela do navegador)
   const bl = $('#ac-limpar');
@@ -3500,7 +3627,7 @@ var moduleInfo = {
   adiantamento:{icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:1.15em;height:1.15em;vertical-align:-0.2em"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="3"/><path d="M6 9h.01M18 15h.01"/></svg>', title:"Solicitação de Adiantamento",      sub:"Solicite verba antecipada"},
   rpa:         {icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:1.15em;height:1.15em;vertical-align:-0.2em"><path d="M13 3H7a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V8Z"/><path d="M13 3v5h5"/><path d="M9 13h6M9 17h6"/></svg>', title:"Recibo de Pagamento Autônomo",     sub:"Preencha os dados do RPA"},
   admin:       {icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:1.15em;height:1.15em;vertical-align:-0.2em"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>', title:"Painel Administrativo",            sub:"Gerenciar solicitações"},
-  eventos:     {icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:1.15em;height:1.15em;vertical-align:-0.2em"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>', title:"Calcular Evento",                 sub:"Quanto cobrar pela inscrição"}
+  eventos:     {icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:1.15em;height:1.15em;vertical-align:-0.2em"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>', title:"Calcule seu Encontro",             sub:"Quanto cobrar pela inscrição"}
 };
 // ── TELA DE CONFIRMAÇÃO (SUCESSO) ──
 function mostrarSucesso(titulo, subtitulo){
