@@ -5443,19 +5443,6 @@ self.addEventListener('fetch',function(e){
     position:relative; width:72px; height:72px; border-radius:50%;
     display:flex; align-items:center; justify-content:center;
   }
-  .login-seal-ring{
-    position:absolute; inset:0; border-radius:50%;
-    border:1.5px solid var(--brass-soft);
-    animation:sealPulse 2.6s ease-in-out infinite;
-  }
-  .login-seal.locked .login-seal-ring{
-    border:2px solid var(--seal-color, var(--brass));
-    animation:none; box-shadow:0 0 0 5px color-mix(in srgb, var(--seal-color, var(--brass)) 16%, transparent);
-  }
-  @keyframes sealPulse{
-    0%,100%{transform:scale(1); opacity:.55;}
-    50%{transform:scale(1.12); opacity:1;}
-  }
   .login-seal.locked{animation:sealSnap .45s cubic-bezier(.34,1.56,.64,1);}
   @keyframes sealSnap{
     0%{transform:scale(.85);}
@@ -5571,7 +5558,7 @@ self.addEventListener('fetch',function(e){
   }
 
   @media (prefers-reduced-motion: reduce){
-    .login-atmosphere::before, .login-seal-ring, .login-seal, .login-seal-wrap,
+    .login-atmosphere::before, .login-seal, .login-seal-wrap,
     .login-brand, .login-card, .login-step.active, .login-err.show, .login-btn::after,
     .login-sun, .login-rays, .login-haze{
       animation:none !important; transition:none !important;
@@ -5595,7 +5582,6 @@ self.addEventListener('fetch',function(e){
       <div class="login-panel-brand">
         <div class="login-seal-wrap">
           <div class="login-seal" id="loginSeal">
-            <div class="login-seal-ring"></div>
             <div class="logo-fallback" id="loginLogoFallback">🐑</div>
             <img id="loginLogoImg" style="display:none">
           </div>
