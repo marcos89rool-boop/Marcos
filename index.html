@@ -2252,13 +2252,12 @@ textarea{resize:vertical;min-height:80px;}
 #module-eventos .evento-linha input:focus{outline:2px solid var(--teal);outline-offset:1px;border-color:var(--teal);background:#fff}
 
 /* ---------- layout ---------- */
-#module-eventos .bloco-painel{margin-top:20px}
-#module-eventos .colunas{display:grid;grid-template-columns:1fr;gap:16px;margin-top:16px}
+#module-eventos .colunas{display:grid;grid-template-columns:1fr;gap:16px;margin-top:20px}
 @media(min-width:980px){
-  #module-eventos .bloco-painel .campos{grid-template-columns:repeat(auto-fit,minmax(200px,280px));justify-content:start}
-  #module-eventos .colunas{grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);align-items:start}
+  #module-eventos .colunas{grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr)}
   #module-eventos .coluna-a{grid-column:1;grid-row:1}
-  #module-eventos .coluna-b{grid-column:2;grid-row:1;position:sticky;top:16px}
+  #module-eventos .coluna-b{grid-column:2;grid-row:1;position:sticky;top:16px;display:flex;flex-direction:column}
+  #module-eventos .resultado{flex:1;display:flex;flex-direction:column;justify-content:center}
 }
 #module-eventos .bloco{
   background:var(--alto);border:1px solid var(--linha);border-radius:var(--r);
@@ -2455,38 +2454,37 @@ textarea{resize:vertical;min-height:80px;}
   </div>
 </section>
 
-<!-- ========== PAINEL DE CONTROLE: largura total, no topo ========== -->
-<section class="bloco bloco-painel">
-  <h2>Painel de controle</h2>
-  <div class="modos">
-    <button type="button" class="modo" id="modo-valor" aria-pressed="true">Sei quanto quero receber</button>
-    <button type="button" class="modo" id="modo-pessoas" aria-pressed="false">Sei quantas pessoas espero</button>
-  </div>
-  <p class="ajuda" id="ajuda-painel"></p>
-  <div class="campos">
-    <div class="campo" id="campo-desejado">
-      <label for="c-desejado">Valor desejado</label>
-      <input id="c-desejado" inputmode="decimal" value="R$ 300,00">
-    </div>
-    <div class="campo oculto" id="campo-pessoas">
-      <label for="c-pessoas">Pessoas esperadas</label>
-      <input id="c-pessoas" inputmode="numeric" value="30">
-    </div>
-    <div class="campo oculto" id="campo-meta">
-      <label for="c-meta">Sobra desejada</label>
-      <input id="c-meta" inputmode="decimal" value="R$ 0,00">
-    </div>
-    <div class="campo">
-      <label for="c-taxa">Taxa da plataforma</label>
-      <input id="c-taxa" inputmode="decimal" value="5%">
-    </div>
-  </div>
-</section>
-
 <div class="colunas">
 
   <!-- ========== COLUNA A: ENTRADAS ========== -->
   <div class="coluna-a">
+
+    <section class="bloco">
+      <h2>Painel de controle</h2>
+      <div class="modos">
+        <button type="button" class="modo" id="modo-valor" aria-pressed="true">Sei quanto quero receber</button>
+        <button type="button" class="modo" id="modo-pessoas" aria-pressed="false">Sei quantas pessoas espero</button>
+      </div>
+      <p class="ajuda" id="ajuda-painel"></p>
+      <div class="campos">
+        <div class="campo" id="campo-desejado">
+          <label for="c-desejado">Valor desejado</label>
+          <input id="c-desejado" inputmode="decimal" value="R$ 300,00">
+        </div>
+        <div class="campo oculto" id="campo-pessoas">
+          <label for="c-pessoas">Pessoas esperadas</label>
+          <input id="c-pessoas" inputmode="numeric" value="30">
+        </div>
+        <div class="campo oculto" id="campo-meta">
+          <label for="c-meta">Sobra desejada</label>
+          <input id="c-meta" inputmode="decimal" value="R$ 0,00">
+        </div>
+        <div class="campo">
+          <label for="c-taxa">Taxa da plataforma</label>
+          <input id="c-taxa" inputmode="decimal" value="5%">
+        </div>
+      </div>
+    </section>
 
     <section class="bloco">
       <h2>Custos fixos</h2>
@@ -2718,7 +2716,7 @@ function desenharLista(campo, alvo){
     const [dt,ds,vl,bt] = l.children;
     dt.oninput = e => { st[campo][i].data = e.target.value; salvar(); };
     ds.oninput = e => { st[campo][i].desc = e.target.value; salvar(); };
-    vl.oninput = e => { st[campo][i].valor = parseNum(e.target.value); atualizar(false); };
+    vl.oninput = e => { st[campo][i].valor = parseNum(e.target.value); atualizar(); };
     vl.onblur  = e => { e.target.value = st[campo][i].valor ? brl(st[campo][i].valor) : ''; };
     vl.onfocus = e => { if(st[campo][i].valor) e.target.value = String(st[campo][i].valor).replace('.',','); };
     bt.onclick = () => { st[campo].splice(i,1); desenharLista(campo,alvo); atualizar(); };
@@ -2744,7 +2742,7 @@ function desenharEscala(n, minimo){
 }
 
 /* ============ atualização geral ============ */
-function atualizar(redesenharValores=true){
+function atualizar(){
   const c = calcular();
 
   $('#tot-fixos').textContent = brl(c.totFixos);
@@ -2765,7 +2763,7 @@ function atualizar(redesenharValores=true){
     ? ('Nesse ponto as margens somam os '+brl(c.totFixos)+' de custos fixos. A partir daí, cada inscrição sobra para a pastoral.')
     : 'Sem margem positiva não existe número de inscritos que pague o evento.';
 
-  if(redesenharValores && document.activeElement !== $('#c-praticado')){
+  if(document.activeElement !== $('#c-praticado')){
     $('#c-praticado').value = brl(c.preco);
   }
 
@@ -3029,12 +3027,12 @@ function ligarCampos(){
   ['nome','data','local'].forEach(k=>{
     const el = $('#ev-'+k);
     el.value = st.evento[k]||'';
-    el.oninput = e => { st.evento[k] = e.target.value; atualizar(false); };
+    el.oninput = e => { st.evento[k] = e.target.value; atualizar(); };
   });
 
   const dj = $('#c-desejado');
   dj.value = brl(st.desejado);
-  dj.oninput = e => { st.desejado = parseNum(e.target.value); atualizar(false); };
+  dj.oninput = e => { st.desejado = parseNum(e.target.value); atualizar(); };
   dj.onblur  = e => { e.target.value = brl(st.desejado); };
   dj.onfocus = e => { e.target.value = String(st.desejado).replace('.',','); };
 
@@ -3044,24 +3042,24 @@ function ligarCampos(){
     st.pessoas = Math.max(0, Math.round(parseNum(e.target.value))||0);
     st.praticado = null;                       // volta a seguir o cálculo
     sincronizarSim(st.pessoas);
-    atualizar(true);
+    atualizar();
   };
 
   const mt = $('#c-meta');
   mt.value = brl(st.meta);
-  mt.oninput = e => { st.meta = parseNum(e.target.value); st.praticado = null; atualizar(true); };
+  mt.oninput = e => { st.meta = parseNum(e.target.value); st.praticado = null; atualizar(); };
   mt.onblur  = e => { e.target.value = brl(st.meta); };
   mt.onfocus = e => { e.target.value = st.meta ? String(st.meta).replace('.',',') : ''; };
 
   const tx = $('#c-taxa');
   tx.value = pct(st.taxa);
-  tx.oninput = e => { st.taxa = parseNum(e.target.value)/100; atualizar(false); };
+  tx.oninput = e => { st.taxa = parseNum(e.target.value)/100; atualizar(); };
   tx.onblur  = e => { e.target.value = pct(st.taxa); };
   tx.onfocus = e => { e.target.value = String(st.taxa*100).replace('.',','); };
 
   const pr = $('#c-praticado');
-  pr.oninput = e => { st.praticado = parseNum(e.target.value)||null; atualizar(false); };
-  pr.onblur  = () => atualizar(true);
+  pr.oninput = e => { st.praticado = parseNum(e.target.value)||null; atualizar(); };
+  pr.onblur  = () => atualizar();
   pr.onfocus = e => { e.target.value = String(calcular().preco.toFixed(2)).replace('.',','); };
   $('#usar-sugerido').onclick = () => { st.praticado = null; atualizar(); };
   const arredondar = mult => () => {
@@ -3076,7 +3074,7 @@ function ligarCampos(){
   const setSim = v => {
     st.sim = Math.max(0, Math.round(v)||0);
     if(st.sim > +rg.max) rg.max = Math.ceil(st.sim*1.2);
-    rg.value = st.sim; nm.value = st.sim; atualizar(false);
+    rg.value = st.sim; nm.value = st.sim; atualizar();
   };
   sincronizarSim = v => { st.sim = Math.max(0, Math.round(v)||0);
     if(st.sim > +rg.max) rg.max = Math.ceil(st.sim*1.2);
@@ -3110,7 +3108,7 @@ function redesenharTudo(){
 function ligarAcoes(){
   const trocarModo = m => () => {
     st.modo = m; st.praticado = null;
-    aplicarModo(); atualizar(true);
+    aplicarModo(); atualizar();
   };
   $('#modo-valor').onclick = trocarModo('valor');
   $('#modo-pessoas').onclick = trocarModo('pessoas');
