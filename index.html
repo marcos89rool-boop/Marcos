@@ -1420,6 +1420,18 @@ textarea{resize:vertical;min-height:80px;}
         <input type="tel" id="cfgWhatsapp" placeholder="Ex: 5541999999999">
       </div>
 
+      <div class="cfg-section-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:1.15em;height:1.15em;vertical-align:-0.2em"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V8a4 4 0 0 1 8 0v3"></path></svg> Alterar Senha</div>
+      <div class="cfg-field">
+        <label>Nova senha</label>
+        <input type="password" id="cfgNovaSenha" placeholder="Mínimo 6 caracteres" autocomplete="new-password">
+      </div>
+      <div class="cfg-field">
+        <label>Confirmar nova senha</label>
+        <input type="password" id="cfgNovaSenhaConf" placeholder="Repetir nova senha" autocomplete="new-password">
+      </div>
+      <div class="error-msg" id="cfgSenhaErr"></div>
+      <button type="button" class="cfg-btn-save" style="margin-top:4px;" onclick="cfgAlterarSenha()">Alterar Senha</button>
+
     </div>
     <div class="cfg-footer">
       <button class="cfg-btn-reset" onclick="cfgReset()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:1.15em;height:1.15em;vertical-align:-0.2em"><path d="M3 12a9 9 0 0 1 15-6.7L21 8"></path><path d="M21 3v5h-5"></path><path d="M21 12a9 9 0 0 1-15 6.7L3 16"></path><path d="M3 21v-5h5"></path></svg> Padrão</button>
@@ -4506,7 +4518,35 @@ function cfgOpen(){
   document.getElementById('cfgNome').value=c.nome;
   document.getElementById('cfgCnpj').value=c.cnpj;
   document.getElementById('cfgWhatsapp').value=c.whatsapp;
+  document.getElementById('cfgNovaSenha').value='';
+  document.getElementById('cfgNovaSenhaConf').value='';
+  document.getElementById('cfgSenhaErr').classList.remove('show');
   document.getElementById('cfgOverlay').classList.add('show');
+}
+
+// Altera a senha da conta logada (via Supabase Auth) -- separado do
+// resto de Configurações porque é uma ação sensível própria, não algo
+// que deveria disparar junto com "Salvar Configurações".
+async function cfgAlterarSenha(){
+  var senha=document.getElementById('cfgNovaSenha').value;
+  var conf=document.getElementById('cfgNovaSenhaConf').value;
+  var errEl=document.getElementById('cfgSenhaErr');
+  errEl.classList.remove('show');
+
+  if(senha.length<6){ errEl.textContent='A senha precisa ter pelo menos 6 caracteres.'; errEl.classList.add('show'); return; }
+  if(senha!==conf){ errEl.textContent='As senhas não coincidem.'; errEl.classList.add('show'); return; }
+
+  var ld=document.getElementById('loadingOverlay'), msg=document.getElementById('loadingMsg');
+  ld.classList.add('show'); msg.textContent='Alterando senha...';
+  var { error } = await sb.auth.updateUser({ password: senha });
+  ld.classList.remove('show');
+
+  if(error){ errEl.textContent='Erro: '+error.message; errEl.classList.add('show'); return; }
+
+  document.getElementById('cfgNovaSenha').value='';
+  document.getElementById('cfgNovaSenhaConf').value='';
+  msg.textContent='Senha alterada!'; ld.classList.add('show');
+  setTimeout(function(){ ld.classList.remove('show'); }, 900);
 }
 
 function cfgClose(){
@@ -5609,10 +5649,6 @@ self.addEventListener('fetch',function(e){
         <!-- Etapa 2: e-mail e senha -->
         <div class="login-step" id="stepAuth">
           <div class="login-tenant-found" id="tenantFoundBox"></div>
-          <div class="login-field" id="fieldNomeCadastro" style="display:none;">
-            <label>Seu nome</label>
-            <input type="text" id="loginNomeCadastro" placeholder="Seu nome completo" autocomplete="name">
-          </div>
           <div class="login-field">
             <label>E-mail</label>
             <input type="email" id="loginEmail" placeholder="voce@diocese.org.br" autocomplete="username">
@@ -5622,7 +5658,6 @@ self.addEventListener('fetch',function(e){
             <input type="password" id="loginSenha" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')fazerLogin()">
           </div>
           <button class="login-btn" id="btnLogin" onclick="fazerLogin()">Entrar</button>
-          <span class="login-back" id="toggleCadastro" onclick="alternarModoCadastro()">Ainda não tem conta? Criar conta</span>
           <span class="login-back" id="linkEsqueciSenha" onclick="abrirEsqueciSenha()">Esqueci minha senha</span>
           <span class="login-back" onclick="voltarEtapaTenant()">← trocar diocese</span>
         </div>
@@ -5762,24 +5797,12 @@ function aplicarBrandingTenant(data){
 
 function voltarEtapaTenant(){
   clearLoginErr();
-  if(modoCadastro) alternarModoCadastro();
   document.getElementById("stepAuth").classList.remove("active");
   document.getElementById("stepTenant").classList.add("active");
   document.getElementById("loginSeal").classList.remove("locked");
   document.getElementById("loginSubtitle").textContent = "Simples de usar, pronto para servir.";
   // Logo fixa (ver LOGO_SRC) continua igual ao voltar pra etapa de diocese --
   // nao ha mais fallback de emoji por tenant.
-}
-
-let modoCadastro = false;
-function alternarModoCadastro(){
-  modoCadastro = !modoCadastro;
-  clearLoginErr();
-  document.getElementById("fieldNomeCadastro").style.display = modoCadastro ? "block" : "none";
-  document.getElementById("btnLogin").textContent = modoCadastro ? "Criar conta e entrar" : "Entrar";
-  document.getElementById("toggleCadastro").textContent = modoCadastro
-    ? "Já tem conta? Entrar"
-    : "Ainda não tem conta? Criar conta";
 }
 
 // ══ ESQUECI MINHA SENHA ══
@@ -5879,8 +5902,6 @@ async function confirmarNovaSenha(){
 }
 
 async function fazerLogin(){
-  if(modoCadastro) return criarConta();
-
   clearLoginErr();
   const email = document.getElementById("loginEmail").value.trim();
   const senha = document.getElementById("loginSenha").value;
@@ -5925,64 +5946,6 @@ async function fazerLogin(){
   sessionStorage.setItem("gs1_tenant_id", gs1TenantId);
   sessionStorage.setItem("gs1_user_nome", gs1UserNome);
   sessionStorage.setItem("gs1_user_email", gs1UserEmail);
-  entrarNoApp();
-}
-
-async function criarConta(){
-  clearLoginErr();
-  const nome = document.getElementById("loginNomeCadastro").value.trim();
-  const email = document.getElementById("loginEmail").value.trim();
-  const senha = document.getElementById("loginSenha").value;
-  if(!nome){ showLoginErr("Digite seu nome."); return; }
-  if(!email || !senha){ showLoginErr("Preencha e-mail e senha."); return; }
-  if(senha.length < 6){ showLoginErr("A senha precisa ter pelo menos 6 caracteres."); return; }
-  if(!tenantAtual || !tenantAtual.id){ showLoginErr("Não foi possível identificar a diocese. Volte e tente de novo."); return; }
-
-  const btn = document.getElementById("btnLogin");
-  btn.disabled = true; btn.textContent = "Criando conta...";
-
-  const { data: signUpData, error: signUpError } = await sb.auth.signUp({ email, password: senha });
-
-  if(signUpError){
-    btn.disabled = false; btn.textContent = "Criar conta e entrar";
-    showLoginErr(signUpError.message === "User already registered"
-      ? "Já existe uma conta com este e-mail. Tente entrar em vez de criar conta."
-      : "Não foi possível criar a conta: " + signUpError.message);
-    return;
-  }
-
-  if(!signUpData.session){
-    btn.disabled = false; btn.textContent = "Criar conta e entrar";
-    showLoginErr("Conta criada! Confirme seu e-mail (verifique a caixa de entrada) e depois faça login.");
-    alternarModoCadastro();
-    return;
-  }
-
-  // Cria o profile já vinculado à diocese, sempre como usuário comum —
-  // autocadastro nunca vira administrador (isso é imposto também no banco).
-  const { error: profileError } = await sb.from("profiles").insert({
-    id: signUpData.user.id,
-    tenant_id: tenantAtual.id,
-    nome: nome,
-    role: "user"
-  });
-
-  btn.disabled = false; btn.textContent = "Criar conta e entrar";
-
-  if(profileError){
-    showLoginErr("Conta criada, mas houve um erro ao vincular à diocese: " + profileError.message);
-    return;
-  }
-
-  gs1UserRole = "user";
-  gs1TenantId = tenantAtual.id;
-  gs1UserNome = nome;
-  gs1UserEmail = signUpData.user.email || "";
-  sessionStorage.setItem("gs1_tenant", JSON.stringify(tenantAtual));
-  sessionStorage.setItem("gs1_role", gs1UserRole);
-  sessionStorage.setItem("gs1_tenant_id", gs1TenantId);
-  sessionStorage.setItem("gs1_user_email", gs1UserEmail);
-  sessionStorage.setItem("gs1_user_nome", gs1UserNome);
   entrarNoApp();
 }
 
