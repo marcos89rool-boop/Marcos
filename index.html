@@ -1420,17 +1420,6 @@ textarea{resize:vertical;min-height:80px;}
         <input type="tel" id="cfgWhatsapp" placeholder="Ex: 5541999999999">
       </div>
 
-      <div class="cfg-section-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:1.15em;height:1.15em;vertical-align:-0.2em"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V8a4 4 0 0 1 8 0v3"></path></svg> Segurança</div>
-      <div class="cfg-field">
-        <label>Nova Senha do Admin (deixe vazio para manter)</label>
-        <input type="password" id="cfgSenha" placeholder="Nova senha">
-      </div>
-      <div class="cfg-field">
-        <label>Confirmar Nova Senha</label>
-        <input type="password" id="cfgSenhaConf" placeholder="Repetir nova senha">
-      </div>
-      <div class="error-msg" id="cfgSenhaErr" style="margin-top:-6px;">As senhas não coincidem</div>
-
     </div>
     <div class="cfg-footer">
       <button class="cfg-btn-reset" onclick="cfgReset()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:1.15em;height:1.15em;vertical-align:-0.2em"><path d="M3 12a9 9 0 0 1 15-6.7L21 8"></path><path d="M21 3v5h-5"></path><path d="M21 12a9 9 0 0 1-15 6.7L3 16"></path><path d="M3 21v-5h5"></path></svg> Padrão</button>
@@ -2557,12 +2546,6 @@ function rpaSchemaApply(){
       }
     });
   });
-}
-
-// ── PONTO 1: SHA-256 via Web Crypto API ──
-async function sha256(str){
-  var buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(str));
-  return Array.from(new Uint8Array(buf)).map(function(b){return b.toString(16).padStart(2,'0');}).join('');
 }
 
 (function(){
@@ -4523,9 +4506,6 @@ function cfgOpen(){
   document.getElementById('cfgNome').value=c.nome;
   document.getElementById('cfgCnpj').value=c.cnpj;
   document.getElementById('cfgWhatsapp').value=c.whatsapp;
-  document.getElementById('cfgSenha').value='';
-  document.getElementById('cfgSenhaConf').value='';
-  document.getElementById('cfgSenhaErr').classList.remove('show');
   document.getElementById('cfgOverlay').classList.add('show');
 }
 
@@ -4534,21 +4514,12 @@ function cfgClose(){
 }
 
 function cfgSave(){
-  var senha=document.getElementById('cfgSenha').value;
-  var senhaConf=document.getElementById('cfgSenhaConf').value;
-  if(senha&&senha!==senhaConf){ document.getElementById('cfgSenhaErr').classList.add('show'); return; }
-  document.getElementById('cfgSenhaErr').classList.remove('show');
   if(!gs1TenantId){ cfgClose(); return; }
 
   var c=cfgLoad();
   c.nome=document.getElementById('cfgNome').value.trim()||c.nome;
   c.cnpj=document.getElementById('cfgCnpj').value.trim()||c.cnpj;
   c.whatsapp=document.getElementById('cfgWhatsapp').value.trim()||c.whatsapp;
-  if(senha){
-    sha256(senha).then(function(hash){
-      var c2=cfgLoad(); c2.senhaHash=hash; cfgSaveData(c2);
-    });
-  }
 
   cfgClose();
   var ld=document.getElementById('loadingOverlay'),msg=document.getElementById('loadingMsg');
@@ -6142,7 +6113,7 @@ async function entrarAnonimo(codigo){
 
   tenantAtual = tenantData;
   aplicarBrandingTenant(tenantData);
-  document.getElementById("tenantFoundBox").innerHTML = "🏛️ <span>" + tenantData.nome + "</span>";
+  document.getElementById("tenantFoundBox").innerHTML = "🏛️ <span>" + eh(tenantData.nome) + "</span>";
   document.getElementById("stepTenant").classList.remove("active");
   document.getElementById("stepAuth").classList.add("active");
   document.getElementById("btnLogin").disabled = true;
