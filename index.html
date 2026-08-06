@@ -2261,8 +2261,10 @@ textarea{resize:vertical;min-height:80px;}
 #module-eventos .evento-linha input:focus{outline:2px solid var(--teal);outline-offset:1px;border-color:var(--teal);background:#fff}
 
 /* ---------- layout ---------- */
-#module-eventos .colunas{display:grid;grid-template-columns:1fr;gap:16px;margin-top:20px}
+#module-eventos .bloco-painel{margin-top:20px}
+#module-eventos .colunas{display:grid;grid-template-columns:1fr;gap:16px;margin-top:16px}
 @media(min-width:980px){
+  #module-eventos .bloco-painel .campos{grid-template-columns:repeat(auto-fit,minmax(200px,280px));justify-content:start}
   #module-eventos .colunas{grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);align-items:start}
   #module-eventos .coluna-a{grid-column:1;grid-row:1}
   #module-eventos .coluna-b{grid-column:2;grid-row:1;position:sticky;top:16px}
@@ -2493,37 +2495,39 @@ textarea{resize:vertical;min-height:80px;}
 </header>
 
 <div class="wrap">
+
+<!-- ========== PAINEL DE CONTROLE: largura total, no topo ========== -->
+<section class="bloco bloco-painel">
+  <h2>Painel de controle</h2>
+  <div class="modos">
+    <button type="button" class="modo" id="modo-valor" aria-pressed="true">Sei quanto quero receber</button>
+    <button type="button" class="modo" id="modo-pessoas" aria-pressed="false">Sei quantas pessoas espero</button>
+  </div>
+  <p class="ajuda" id="ajuda-painel"></p>
+  <div class="campos">
+    <div class="campo" id="campo-desejado">
+      <label for="c-desejado">Valor desejado</label>
+      <input id="c-desejado" inputmode="decimal" value="R$ 300,00">
+    </div>
+    <div class="campo oculto" id="campo-pessoas">
+      <label for="c-pessoas">Pessoas esperadas</label>
+      <input id="c-pessoas" inputmode="numeric" value="30">
+    </div>
+    <div class="campo oculto" id="campo-meta">
+      <label for="c-meta">Sobra desejada</label>
+      <input id="c-meta" inputmode="decimal" value="R$ 0,00">
+    </div>
+    <div class="campo">
+      <label for="c-taxa">Taxa da plataforma</label>
+      <input id="c-taxa" inputmode="decimal" value="5%">
+    </div>
+  </div>
+</section>
+
 <div class="colunas">
 
   <!-- ========== COLUNA A: ENTRADAS ========== -->
   <div class="coluna-a">
-
-    <section class="bloco">
-      <h2>Painel de controle</h2>
-      <div class="modos">
-        <button type="button" class="modo" id="modo-valor" aria-pressed="true">Sei quanto quero receber</button>
-        <button type="button" class="modo" id="modo-pessoas" aria-pressed="false">Sei quantas pessoas espero</button>
-      </div>
-      <p class="ajuda" id="ajuda-painel"></p>
-      <div class="campos">
-        <div class="campo" id="campo-desejado">
-          <label for="c-desejado">Valor desejado</label>
-          <input id="c-desejado" inputmode="decimal" value="R$ 300,00">
-        </div>
-        <div class="campo oculto" id="campo-pessoas">
-          <label for="c-pessoas">Pessoas esperadas</label>
-          <input id="c-pessoas" inputmode="numeric" value="30">
-        </div>
-        <div class="campo oculto" id="campo-meta">
-          <label for="c-meta">Sobra desejada</label>
-          <input id="c-meta" inputmode="decimal" value="R$ 0,00">
-        </div>
-        <div class="campo">
-          <label for="c-taxa">Taxa da plataforma</label>
-          <input id="c-taxa" inputmode="decimal" value="5%">
-        </div>
-      </div>
-    </section>
 
     <section class="bloco">
       <h2>Custos fixos</h2>
@@ -2545,6 +2549,14 @@ textarea{resize:vertical;min-height:80px;}
       </div>
     </section>
 
+    <section class="bloco">
+      <h2>Quanto cobrar por tamanho de público</h2>
+      <p class="ajuda" id="ajuda-tabela"></p>
+      <table class="tabela-precos">
+        <thead><tr><th>Inscritos</th><th>Valor da inscrição</th></tr></thead>
+        <tbody id="corpo-precos"></tbody>
+      </table>
+    </section>
 
   </div>
 
@@ -2614,15 +2626,6 @@ textarea{resize:vertical;min-height:80px;}
         <div><span>Custos fixos</span><span id="d-fixo">—</span></div>
         <div class="final"><span id="d-rot">Resultado</span><span id="d-final">—</span></div>
       </div>
-    </section>
-
-    <section class="bloco">
-      <h2>Quanto cobrar por tamanho de público</h2>
-      <p class="ajuda" id="ajuda-tabela"></p>
-      <table class="tabela-precos">
-        <thead><tr><th>Inscritos</th><th>Valor da inscrição</th></tr></thead>
-        <tbody id="corpo-precos"></tbody>
-      </table>
     </section>
 
   </div>
