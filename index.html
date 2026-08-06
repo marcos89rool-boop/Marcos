@@ -1414,10 +1414,16 @@ textarea{resize:vertical;min-height:80px;}
         <input type="text" id="cfgCnpj" placeholder="Ex: 33.685.686/0009-08">
       </div>
 
-      <div class="cfg-section-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:1.15em;height:1.15em;vertical-align:-0.2em"><rect x="7" y="2" width="10" height="20" rx="2"></rect><path d="M11 18h2"></path></svg> WhatsApp do Financeiro</div>
+      <div class="cfg-section-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:1.15em;height:1.15em;vertical-align:-0.2em"><rect x="7" y="2" width="10" height="20" rx="2"></rect><path d="M11 18h2"></path></svg> WhatsApp para Contato</div>
       <div class="cfg-field">
         <label>Número com DDI e DDD (só números)</label>
         <input type="tel" id="cfgWhatsapp" placeholder="Ex: 5541999999999">
+      </div>
+
+      <div class="cfg-section-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:1.15em;height:1.15em;vertical-align:-0.2em"><path d="M4 21V9l8-5 8 5v12"></path><path d="M4 21h16"></path><path d="M9 21v-7h6v7"></path></svg> Administrador</div>
+      <div class="cfg-field">
+        <label>Nome do administrador</label>
+        <input type="text" id="cfgAdminNome" placeholder="Seu nome completo">
       </div>
 
       <div class="cfg-section-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:1.15em;height:1.15em;vertical-align:-0.2em"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V8a4 4 0 0 1 8 0v3"></path></svg> Alterar Senha</div>
@@ -4518,6 +4524,7 @@ function cfgOpen(){
   document.getElementById('cfgNome').value=c.nome;
   document.getElementById('cfgCnpj').value=c.cnpj;
   document.getElementById('cfgWhatsapp').value=c.whatsapp;
+  document.getElementById('cfgAdminNome').value=gs1UserNome||'';
   document.getElementById('cfgNovaSenha').value='';
   document.getElementById('cfgNovaSenhaConf').value='';
   document.getElementById('cfgSenhaErr').classList.remove('show');
@@ -4553,13 +4560,14 @@ function cfgClose(){
   document.getElementById('cfgOverlay').classList.remove('show');
 }
 
-function cfgSave(){
+async function cfgSave(){
   if(!gs1TenantId){ cfgClose(); return; }
 
   var c=cfgLoad();
   c.nome=document.getElementById('cfgNome').value.trim()||c.nome;
   c.cnpj=document.getElementById('cfgCnpj').value.trim()||c.cnpj;
   c.whatsapp=document.getElementById('cfgWhatsapp').value.trim()||c.whatsapp;
+  var adminNome=document.getElementById('cfgAdminNome').value.trim();
 
   cfgClose();
   var ld=document.getElementById('loadingOverlay'),msg=document.getElementById('loadingMsg');
@@ -4568,25 +4576,44 @@ function cfgSave(){
   // Grava direto na linha desta diocese em `tenants` — é a ÚNICA fonte de
   // verdade agora. Nada mais fica em localStorage, que é compartilhado
   // por qualquer diocese acessada no mesmo navegador.
-  sb.from('tenants').update({
+  var res = await sb.from('tenants').update({
     nome: c.nome, cnpj: c.cnpj || null, whatsapp: c.whatsapp || null
-  }).eq('id', gs1TenantId).then(function(res){
-    if(res.error){
-      console.error('Erro ao salvar configurações:', res.error.message);
-      msg.textContent = 'Erro ao salvar. Tente de novo.';
-      setTimeout(function(){ ld.classList.remove('show'); }, 1400);
-      return;
+  }).eq('id', gs1TenantId);
+
+  if(res.error){
+    console.error('Erro ao salvar configurações:', res.error.message);
+    msg.textContent = 'Erro ao salvar. Tente de novo.';
+    setTimeout(function(){ ld.classList.remove('show'); }, 1400);
+    return;
+  }
+
+  // Nome do administrador logado -- grava em `profiles`, tabela separada
+  // de `tenants` (é por pessoa, não por diocese).
+  if(adminNome && adminNome!==gs1UserNome){
+    var { data: userData } = await sb.auth.getUser();
+    if(userData && userData.user){
+      var profRes = await sb.from('profiles').update({ nome: adminNome }).eq('id', userData.user.id);
+      if(!profRes.error){
+        gs1UserNome = adminNome;
+        sessionStorage.setItem("gs1_user_nome", gs1UserNome);
+        var duNome = document.getElementById('drawerUserNome');
+        if(duNome && gs1UserNome){
+          var papel = gs1UserRole === 'admin' ? 'Administrador' : 'Usuário';
+          duNome.textContent = '👤 ' + gs1UserNome + ' · ' + papel;
+        }
+      }
     }
-    // Atualiza o tenant em memória com os valores recém-salvos, sem
-    // precisar recarregar a página.
-    tenantAtual = Object.assign({}, tenantAtual, {
-      nome: c.nome, cnpj: c.cnpj || null, whatsapp: c.whatsapp || null
-    });
-    sessionStorage.setItem("gs1_tenant", JSON.stringify(tenantAtual));
-    cfgApply();
-    msg.textContent = 'Configurações salvas!';
-    setTimeout(function(){ ld.classList.remove('show'); }, 800);
+  }
+
+  // Atualiza o tenant em memória com os valores recém-salvos, sem
+  // precisar recarregar a página.
+  tenantAtual = Object.assign({}, tenantAtual, {
+    nome: c.nome, cnpj: c.cnpj || null, whatsapp: c.whatsapp || null
   });
+  sessionStorage.setItem("gs1_tenant", JSON.stringify(tenantAtual));
+  cfgApply();
+  msg.textContent = 'Configurações salvas!';
+  setTimeout(function(){ ld.classList.remove('show'); }, 800);
 }
 
 function cfgReset(){
