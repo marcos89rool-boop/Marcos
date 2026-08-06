@@ -1574,6 +1574,10 @@ textarea{resize:vertical;min-height:80px;}
       <div class="drawer-item-label">RPA</div>
       <div class="drawer-item-arrow">›</div>
     </div>
+    <div class="drawer-item" id="di-eventos" onclick="drawerGo('eventos')">
+      <div class="drawer-item-label">Calcular Evento</div>
+      <div class="drawer-item-arrow">›</div>
+    </div>
     <div class="drawer-section-label">Conta</div>
     <div class="drawer-item" id="di-admin" onclick="drawerGoAdmin()">
       <div class="drawer-item-label">Painel Admin</div>
@@ -2206,6 +2210,895 @@ textarea{resize:vertical;min-height:80px;}
 
 </div><!-- /module-rpa -->
 
+<!-- ══ MÓDULO: CALCULAR EVENTO (Pastorallis Eventos) ══ -->
+<style>
+
+#module-eventos{
+  /* paleta Pastorallis One */
+  --teal:#149EB8;
+  --teal-esc:#0E6B80;
+  --teal-claro:#E6F4F8;
+  --tinta:#1E293B;
+  --tinta2:#64748B;
+  --linha:#E2E8F0;
+  --papel:#F1F5F9;
+  --alto:#FFFFFF;
+  --ambar:#D97706;
+  --verde:#059669;
+  --verde-claro:#6EE7B7;
+  --vermelho:#DC2626;
+  --r:14px;
+  --corpo:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,"Courier New",monospace;
+}
+#module-eventos *{box-sizing:border-box}
+
+#module-eventos{
+  background:var(--papel);color:var(--tinta);font-family:var(--corpo);
+  font-size:16px;line-height:1.5;-webkit-text-size-adjust:100%;
+}
+#module-eventos .wrap{max-width:1180px;margin:0 auto;padding:0 16px 120px}
+
+/* ---------- cabeçalho ---------- */
+#module-eventos header.topo{background:var(--alto);border-bottom:1px solid var(--linha);position:relative}
+#module-eventos .evt-menu-btn{position:absolute;top:16px;left:14px;width:42px;height:42px;border-radius:12px;background:#f1f5f9;border:1px solid var(--linha);display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:2;}
+#module-eventos .topo .wrap{padding-left:60px}
+#module-eventos .topo .wrap{padding-top:16px;padding-bottom:18px}
+#module-eventos .marca{display:flex;align-items:center;gap:12px}
+#module-eventos .marca svg{width:44px;height:44px;flex:none;border-radius:12px}
+#module-eventos .marca .nome{font-weight:800;font-size:clamp(20px,5vw,25px);letter-spacing:-.025em;line-height:1.1}
+#module-eventos .marca .nome i{font-style:normal;color:var(--teal)}
+#module-eventos .marca .tag{font-size:12.5px;color:var(--tinta2);font-weight:500;margin-top:1px}
+#module-eventos .risca{height:3px;border-radius:2px;background:var(--teal);margin:14px 0 0}
+#module-eventos .topo p{margin:12px 0 0;color:var(--tinta2);font-size:14px;max-width:64ch}
+#module-eventos .evento-linha{display:grid;grid-template-columns:1fr;gap:8px;margin-top:14px}
+@media(min-width:640px){#module-eventos .evento-linha{grid-template-columns:2fr 1fr 1.4fr}}
+#module-eventos .evento-linha input{
+  background:var(--papel);border:1px solid var(--linha);color:var(--tinta);
+  border-radius:10px;padding:10px 12px;font:inherit;font-size:14px;width:100%;
+}
+#module-eventos .evento-linha input::placeholder{color:#94A3B8}
+#module-eventos .evento-linha input:focus{outline:2px solid var(--teal);outline-offset:1px;border-color:var(--teal);background:#fff}
+
+/* ---------- layout ---------- */
+#module-eventos .colunas{display:grid;grid-template-columns:1fr;gap:16px;margin-top:20px}
+@media(min-width:980px){
+  #module-eventos .colunas{grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);align-items:start}
+  #module-eventos .coluna-a{grid-column:1;grid-row:1}
+  #module-eventos .coluna-c{grid-column:1;grid-row:2}
+  #module-eventos .coluna-b{grid-column:2;grid-row:1 / span 2;position:sticky;top:16px}
+}
+#module-eventos .bloco{
+  background:var(--alto);border:1px solid var(--linha);border-radius:var(--r);
+  padding:16px;margin-bottom:16px;
+}
+#module-eventos .bloco > h2{
+  font-weight:700;font-size:15px;letter-spacing:-.01em;margin:0 0 2px;
+  display:flex;align-items:center;gap:9px;
+}
+#module-eventos .bloco > h2::before{content:"";width:6px;height:18px;border-radius:2px;background:var(--teal);flex:none}
+#module-eventos .ajuda{color:var(--tinta2);font-size:13px;margin:0 0 14px 15px}
+
+/* ---------- campos ---------- */
+#module-eventos .modos{display:grid;grid-template-columns:1fr 1fr;gap:6px;background:var(--papel);
+  border-radius:11px;padding:5px;margin:2px 0 14px}
+#module-eventos .modo{border:0;background:none;border-radius:8px;padding:9px 8px;font:inherit;font-size:13px;
+  font-weight:600;color:var(--tinta2);cursor:pointer;line-height:1.25}
+#module-eventos .modo[aria-pressed=true]{background:#fff;color:var(--teal-esc);box-shadow:0 1px 3px rgba(30,41,59,.12)}
+#module-eventos .modo:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
+#module-eventos .campos{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+#module-eventos .campo.oculto{display:none}
+#module-eventos .tabela-precos{width:100%;border-collapse:collapse;font-size:14px}
+#module-eventos .tabela-precos th{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--tinta2);
+  text-align:left;padding:0 0 6px;font-weight:600}
+#module-eventos .tabela-precos th:last-child, #module-eventos .tabela-precos td:last-child{text-align:right}
+#module-eventos .tabela-precos td{padding:8px 0;border-top:1px solid var(--linha);font-family:var(--mono);font-size:14px}
+#module-eventos .tabela-precos tr.atual td{color:var(--teal-esc);font-weight:600;background:var(--teal-claro)}
+#module-eventos .tabela-precos tr.atual td:first-child{border-radius:7px 0 0 7px;padding-left:8px}
+#module-eventos .tabela-precos tr.atual td:last-child{border-radius:0 7px 7px 0;padding-right:8px}
+#module-eventos .campo label{display:block;font-size:11.5px;font-weight:600;color:var(--tinta2);margin-bottom:5px;
+  text-transform:uppercase;letter-spacing:.05em}
+#module-eventos .campo input{
+  width:100%;padding:11px 12px;border:1px solid var(--linha);border-radius:10px;
+  font-family:var(--mono);font-size:16px;font-weight:500;background:#fff;color:var(--tinta);
+}
+#module-eventos .campo input:focus{outline:2px solid var(--teal);outline-offset:1px;border-color:var(--teal)}
+
+/* ---------- listas de custos ---------- */
+#module-eventos .lista{display:flex;flex-direction:column;gap:8px}
+#module-eventos .linha-item{
+  display:grid;gap:8px;align-items:center;
+  grid-template-columns:1fr 118px 40px;
+  grid-template-areas:"desc valor apagar" "data valor apagar";
+}
+@media(min-width:560px){
+  #module-eventos .linha-item{grid-template-columns:132px 1fr 130px 40px;grid-template-areas:"data desc valor apagar"}
+}
+#module-eventos .linha-item .i-data{grid-area:data}
+#module-eventos .linha-item .i-desc{grid-area:desc}
+#module-eventos .linha-item .i-valor{grid-area:valor}
+#module-eventos .linha-item .i-apagar{grid-area:apagar}
+#module-eventos .linha-item input{
+  width:100%;padding:10px;border:1px solid var(--linha);border-radius:9px;font:inherit;
+  font-size:15px;background:#fff;min-width:0;color:var(--tinta);
+}
+#module-eventos .linha-item .i-valor, #module-eventos .linha-item .i-data{font-family:var(--mono);font-size:14px}
+#module-eventos .linha-item .i-valor{text-align:right;font-weight:500}
+#module-eventos .linha-item input:focus{outline:2px solid var(--teal);outline-offset:1px;border-color:var(--teal)}
+#module-eventos .i-apagar{
+  border:1px solid var(--linha);background:#fff;border-radius:9px;height:40px;cursor:pointer;
+  color:var(--tinta2);font-size:18px;line-height:1;
+}
+#module-eventos .i-apagar:hover{border-color:var(--vermelho);color:var(--vermelho)}
+#module-eventos .vazio{border:1px dashed var(--linha);border-radius:10px;padding:16px;text-align:center;
+  color:var(--tinta2);font-size:14px}
+#module-eventos .rodape-lista{display:flex;justify-content:space-between;align-items:center;gap:12px;
+  margin-top:12px;padding-top:12px;border-top:1px solid var(--linha);flex-wrap:wrap}
+#module-eventos .total-lista{font-family:var(--mono);font-size:17px;font-weight:600}
+#module-eventos .total-lista small{display:block;font-family:var(--corpo);font-size:11px;font-weight:600;
+  color:var(--tinta2);text-transform:uppercase;letter-spacing:.05em}
+#module-eventos .btn{border:1px solid var(--teal);background:var(--teal);color:#fff;border-radius:10px;
+  padding:10px 14px;font:inherit;font-size:14px;font-weight:600;cursor:pointer}
+#module-eventos .btn:hover{background:var(--teal-esc);border-color:var(--teal-esc)}
+#module-eventos .btn.claro{background:#fff;color:var(--tinta);border-color:var(--linha)}
+#module-eventos .btn.claro:hover{border-color:var(--teal);color:var(--teal-esc);background:#fff}
+#module-eventos .btn.perigo{background:var(--vermelho);border-color:var(--vermelho);color:#fff}
+#module-eventos .btn:focus-visible, #module-eventos .i-apagar:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
+
+/* ---------- resultado ---------- */
+#module-eventos .resultado{background:var(--tinta);color:#fff;border-color:var(--tinta)}
+#module-eventos .resultado > h2{color:#fff}
+#module-eventos .resultado > h2::before{background:var(--teal)}
+#module-eventos .heroi{margin:6px 0 4px}
+#module-eventos .heroi .rot{font-size:11.5px;text-transform:uppercase;letter-spacing:.08em;color:#94A3B8;font-weight:600}
+#module-eventos .heroi .num{
+  font-family:var(--mono);font-weight:600;font-size:clamp(38px,10vw,54px);line-height:1.05;
+  letter-spacing:-.03em;color:#fff;border-bottom:3px solid var(--teal);display:inline-block;padding-bottom:4px;
+}
+#module-eventos .heroi .obs{font-size:13px;color:#94A3B8;margin-top:8px}
+#module-eventos .heroi .obs b{color:#fff;font-weight:600}
+#module-eventos .praticado{margin-top:12px;background:rgba(255,255,255,.07);border-radius:10px;padding:12px}
+#module-eventos .pr-topo{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+#module-eventos .praticado label{font-size:11.5px;color:#CBD5E1;font-weight:600;text-transform:uppercase;
+  letter-spacing:.05em;flex:1 1 100%}
+#module-eventos .praticado input{width:130px;background:#fff;border:0;border-radius:8px;padding:9px 10px;
+  font-family:var(--mono);font-size:16px;font-weight:600;text-align:right;color:var(--tinta)}
+#module-eventos .pr-chips{display:flex;gap:6px;flex-wrap:wrap}
+#module-eventos .chip{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);color:#fff;
+  border-radius:999px;padding:7px 11px;font:inherit;font-size:12px;font-weight:600;cursor:pointer}
+#module-eventos .chip:hover{background:rgba(255,255,255,.22)}
+#module-eventos .pr-efeito{font-size:12.5px;color:#CBD5E1;margin-top:9px;line-height:1.4}
+#module-eventos .pr-efeito b{color:#fff;font-weight:600}
+#module-eventos .pr-efeito .sobe{color:#FCA5A5;font-weight:600}
+#module-eventos .pr-efeito .cai{color:var(--verde-claro);font-weight:600}
+#module-eventos .pr-voltar{background:none;border:0;color:var(--teal);font:inherit;font-size:12.5px;
+  font-weight:600;cursor:pointer;text-decoration:underline;padding:6px 0 0;display:none}
+#module-eventos .pr-voltar.ver{display:block}
+#module-eventos .chip:focus-visible, #module-eventos .pr-voltar:focus-visible{outline:2px solid #fff;outline-offset:2px}
+#module-eventos .indicadores{display:grid;grid-template-columns:1fr;gap:10px;margin-top:14px}
+@media(min-width:420px){#module-eventos .indicadores{grid-template-columns:1fr 1fr}}
+#module-eventos .ind{background:rgba(255,255,255,.07);border-radius:10px;padding:12px}
+#module-eventos .ind .rot{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:#94A3B8;font-weight:600}
+#module-eventos .ind .num{font-family:var(--mono);font-size:22px;font-weight:600;margin-top:3px}
+#module-eventos .ind .dica{font-size:12px;color:#CBD5E1;margin-top:6px;line-height:1.35}
+#module-eventos .decomp{margin-top:14px}
+#module-eventos .decomp .rot{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:#94A3B8;
+  font-weight:600;margin-bottom:6px}
+#module-eventos .barra{display:flex;height:12px;border-radius:999px;overflow:hidden;background:rgba(255,255,255,.12)}
+#module-eventos .barra span{display:block;height:100%}
+#module-eventos .barra .f-taxa{background:#F87171}
+#module-eventos .barra .f-var{background:#FBBF24}
+#module-eventos .barra .f-mar{background:var(--verde-claro)}
+#module-eventos .legenda-decomp{display:flex;flex-wrap:wrap;gap:12px;margin-top:8px;font-size:12px;color:#CBD5E1}
+#module-eventos .legenda-decomp i{width:8px;height:8px;border-radius:2px;display:inline-block;margin-right:5px}
+#module-eventos .legenda-decomp b{font-family:var(--mono);color:#fff;font-weight:500}
+#module-eventos .alerta{margin-top:12px;background:rgba(20,158,184,.18);border-left:3px solid var(--teal);
+  border-radius:0 8px 8px 0;padding:10px 12px;font-size:13px;color:#D7EEF4}
+#module-eventos .alerta b{color:#fff}
+#module-eventos .alerta.grave{background:rgba(220,38,38,.2);border-color:#F87171;color:#FECACA}
+
+/* ---------- simulador ---------- */
+#module-eventos .slider-linha{display:flex;align-items:center;gap:12px;margin:4px 0 2px}
+#module-eventos input[type=range]{flex:1;accent-color:var(--teal);height:28px}
+#module-eventos .qtd{font-family:var(--mono);font-size:22px;font-weight:600;min-width:76px;text-align:right}
+#module-eventos .qtd input{width:70px;font:inherit;text-align:right;border:1px solid var(--linha);
+  border-radius:8px;padding:4px 6px;color:var(--tinta)}
+#module-eventos .escala{margin:16px 0 6px}
+#module-eventos .pontos{display:flex;flex-wrap:wrap;gap:3px;line-height:0}
+#module-eventos .pt{width:9px;height:9px;border-radius:50%;background:var(--linha)}
+#module-eventos .pt.paga{background:var(--teal)}
+#module-eventos .pt.lucro{background:var(--verde)}
+#module-eventos .legenda{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--tinta2);margin-top:10px}
+#module-eventos .legenda i{width:9px;height:9px;border-radius:50%;display:inline-block;margin-right:5px}
+#module-eventos .dre{margin-top:14px;border-top:1px solid var(--linha);padding-top:10px}
+#module-eventos .dre div{display:flex;justify-content:space-between;gap:12px;padding:6px 0;font-size:14px;
+  border-bottom:1px dotted var(--linha)}
+#module-eventos .dre div:last-child{border:0}
+#module-eventos .dre span:last-child{font-family:var(--mono);font-weight:500}
+#module-eventos .dre .final{margin-top:6px;border-top:2px solid var(--tinta);padding-top:10px;font-weight:600;font-size:16px}
+#module-eventos .dre .final span:last-child{font-size:19px;font-weight:600}
+#module-eventos .pos{color:var(--verde)}
+#module-eventos .neg{color:var(--vermelho)}
+
+/* ---------- glossário e ações ---------- */
+#module-eventos .glossario dt{font-weight:600;font-size:14px;margin-top:12px}
+#module-eventos .glossario dt:first-child{margin-top:0}
+#module-eventos .glossario dd{margin:3px 0 0;color:var(--tinta2);font-size:13.5px}
+#module-eventos .glossario code{font-family:var(--mono);font-size:12.5px;background:var(--teal-claro);
+  color:var(--teal-esc);padding:2px 6px;border-radius:5px;display:inline-block;margin-top:4px}
+#module-eventos .acoes{display:flex;gap:8px;flex-wrap:wrap}
+#module-eventos .acoes .btn{flex:1 1 auto;text-align:center;min-width:130px}
+#module-eventos .aviso{position:fixed;left:50%;transform:translateX(-50%);bottom:24px;background:var(--tinta);
+  color:#fff;padding:12px 18px;border-radius:999px;font-size:14px;font-weight:500;
+  box-shadow:0 8px 24px rgba(30,41,59,.25);opacity:0;pointer-events:none;transition:opacity .2s;z-index:9}
+#module-eventos .aviso.ver{opacity:1}
+#module-eventos footer.pe{text-align:center;color:var(--tinta2);font-size:12px;padding:8px 0 0}
+@media (prefers-reduced-motion:reduce){#module-eventos *{transition:none!important;animation:none!important}}
+
+/* ---------- impressão ---------- */
+#module-eventos .so-impressao{display:none}
+@media print{
+  #module-eventos{background:#fff}
+  #module-eventos header.topo, #module-eventos .coluna-a, #module-eventos .coluna-b, #module-eventos .coluna-c, #module-eventos .acoes, #module-eventos .aviso, #module-eventos footer.pe{display:none!important}
+  #module-eventos .so-impressao{display:block}
+  #module-eventos .so-impressao h1{font-size:22px;margin:0 0 4px}
+  #module-eventos .so-impressao .sub{color:#444;font-size:13px;margin-bottom:16px}
+  #module-eventos .so-impressao table{width:100%;border-collapse:collapse;margin-bottom:18px;font-size:13px}
+  #module-eventos .so-impressao th, #module-eventos .so-impressao td{border-bottom:1px solid #ccc;padding:6px 4px;text-align:left}
+  #module-eventos .so-impressao td:last-child, #module-eventos .so-impressao th:last-child{text-align:right;font-family:var(--mono)}
+  #module-eventos .so-impressao h3{font-size:13px;text-transform:uppercase;letter-spacing:.06em;margin:0 0 6px}
+}
+</style>
+<div class="module" id="module-eventos">
+<header class="topo">
+  <button class="evt-menu-btn" onclick="openDrawer()" title="Abrir menu">
+    <svg viewBox="0 0 24 24" fill="none" stroke="#1e293b" stroke-width="2.2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+  </button>
+  <div class="wrap">
+    <div class="marca">
+      <svg viewBox="0 0 64 64" role="img" aria-label="Pastorallis">
+        <rect width="64" height="64" rx="14.5" fill="#149EB8"/>
+        <g fill="#fff">
+          <rect x="23.4" y="49" width="3.8" height="7.9" rx="1.9"/>
+          <rect x="36.8" y="49" width="3.8" height="7.9" rx="1.9"/>
+          <circle cx="31.90" cy="11.00" r="5.90"/>
+          <circle cx="40.50" cy="13.52" r="5.90"/>
+          <circle cx="46.36" cy="20.29" r="5.90"/>
+          <circle cx="47.64" cy="29.16" r="5.90"/>
+          <circle cx="43.92" cy="37.31" r="5.90"/>
+          <circle cx="36.38" cy="42.16" r="5.90"/>
+          <circle cx="27.42" cy="42.16" r="5.90"/>
+          <circle cx="19.88" cy="37.31" r="5.90"/>
+          <circle cx="16.16" cy="29.16" r="5.90"/>
+          <circle cx="17.44" cy="20.29" r="5.90"/>
+          <circle cx="23.30" cy="13.52" r="5.90"/>
+          <circle cx="31.90" cy="26.90" r="16.90"/>
+        </g>
+        <circle cx="31.9" cy="30.8" r="12.7" fill="#0F6B80"/>
+        <circle cx="27.6" cy="29" r="1.85" fill="#fff"/>
+        <circle cx="36.3" cy="29" r="1.85" fill="#fff"/>
+      </svg>
+      <div>
+        <div class="nome">Pastorallis <i>Eventos</i></div>
+        <div class="tag">Simples de usar, pronto para servir.</div>
+      </div>
+    </div>
+    <div class="risca"></div>
+    <p>Lance os custos do evento e descubra quanto cobrar por inscrição e quantas pessoas precisam se inscrever para o evento se pagar.</p>
+    <div class="evento-linha">
+      <input id="ev-nome" placeholder="Nome do evento" autocomplete="off">
+      <input id="ev-data" type="date">
+      <input id="ev-local" placeholder="Local / paróquia" autocomplete="off">
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+<div class="colunas">
+
+  <!-- ========== COLUNA A: ENTRADAS ========== -->
+  <div class="coluna-a">
+
+    <section class="bloco">
+      <h2>Painel de controle</h2>
+      <div class="modos">
+        <button type="button" class="modo" id="modo-valor" aria-pressed="true">Sei quanto quero receber</button>
+        <button type="button" class="modo" id="modo-pessoas" aria-pressed="false">Sei quantas pessoas espero</button>
+      </div>
+      <p class="ajuda" id="ajuda-painel"></p>
+      <div class="campos">
+        <div class="campo" id="campo-desejado">
+          <label for="c-desejado">Valor desejado</label>
+          <input id="c-desejado" inputmode="decimal" value="R$ 300,00">
+        </div>
+        <div class="campo oculto" id="campo-pessoas">
+          <label for="c-pessoas">Pessoas esperadas</label>
+          <input id="c-pessoas" inputmode="numeric" value="30">
+        </div>
+        <div class="campo oculto" id="campo-meta">
+          <label for="c-meta">Sobra desejada</label>
+          <input id="c-meta" inputmode="decimal" value="R$ 0,00">
+        </div>
+        <div class="campo">
+          <label for="c-taxa">Taxa da plataforma</label>
+          <input id="c-taxa" inputmode="decimal" value="5%">
+        </div>
+      </div>
+    </section>
+
+    <section class="bloco">
+      <h2>Custos fixos</h2>
+      <p class="ajuda">Os que você paga tendo 10 ou 100 inscritos: aluguel do espaço, som, iluminação, hospedagem e ajuda de custo do palestrante.</p>
+      <div class="lista" id="lista-fixos"></div>
+      <div class="rodape-lista">
+        <button class="btn claro" id="add-fixo">+ Adicionar custo fixo</button>
+        <div class="total-lista"><small>Total fixo</small><span id="tot-fixos">R$ 0,00</span></div>
+      </div>
+    </section>
+
+    <section class="bloco">
+      <h2>Custos variáveis</h2>
+      <p class="ajuda">Lance o valor <b>por pessoa</b>: coffee break, almoço, material impresso, crachá, brinde. Cresce conforme o número de participantes.</p>
+      <div class="lista" id="lista-variaveis"></div>
+      <div class="rodape-lista">
+        <button class="btn claro" id="add-variavel">+ Adicionar custo por pessoa</button>
+        <div class="total-lista"><small>Total por pessoa</small><span id="tot-variaveis">R$ 0,00</span></div>
+      </div>
+    </section>
+
+
+  </div>
+
+  <!-- ========== COLUNA B: RESULTADO ========== -->
+  <div class="coluna-b">
+
+    <section class="bloco resultado">
+      <h2>Valor da inscrição</h2>
+      <div class="heroi">
+        <div class="rot">Cobrar de cada participante</div>
+        <div class="num" id="r-inscricao">R$ 0,00</div>
+        <div class="obs" id="r-obs"></div>
+      </div>
+      <div class="praticado">
+        <div class="pr-topo">
+          <label for="c-praticado">Vou cobrar, na prática</label>
+          <input id="c-praticado" inputmode="decimal">
+          <div class="pr-chips">
+            <button type="button" class="chip" id="arred-5">arredondar p/ R$ 5</button>
+            <button type="button" class="chip" id="arred-10">p/ R$ 10</button>
+          </div>
+        </div>
+        <div class="pr-efeito" id="r-efeito"></div>
+        <button type="button" class="pr-voltar" id="usar-sugerido">voltar ao valor calculado</button>
+      </div>
+      <div class="indicadores">
+        <div class="ind">
+          <div class="rot">Margem por inscrito</div>
+          <div class="num" id="r-margem">R$ 0,00</div>
+          <div class="dica" id="r-margem-dica"></div>
+        </div>
+        <div class="ind">
+          <div class="rot">Mínimo de inscritos</div>
+          <div class="num" id="r-minimo">—</div>
+          <div class="dica" id="r-minimo-dica"></div>
+        </div>
+      </div>
+      <div class="decomp">
+        <div class="rot">Para onde vai cada inscrição</div>
+        <div class="barra" id="r-barra" aria-hidden="true">
+          <span class="f-taxa"></span><span class="f-var"></span><span class="f-mar"></span>
+        </div>
+        <div class="legenda-decomp" id="r-decomp"></div>
+      </div>
+      <div id="r-alerta"></div>
+    </section>
+
+    <section class="bloco">
+      <h2>E se vierem…</h2>
+      <p class="ajuda">Arraste para simular o número de inscritos e ver o resultado do evento.</p>
+      <div class="slider-linha">
+        <input type="range" id="sim-range" min="0" max="200" value="50" aria-label="Número de inscritos simulado">
+        <div class="qtd"><input id="sim-num" inputmode="numeric" value="50" aria-label="Número de inscritos"></div>
+      </div>
+      <div class="escala">
+        <div class="pontos" id="pontos" aria-hidden="true"></div>
+        <div class="legenda">
+          <span><i style="background:var(--teal)"></i><span id="lg-paga">pagam os custos</span></span>
+          <span><i style="background:var(--verde)"></i>sobra para a pastoral</span>
+          <span id="lg-escala"></span>
+        </div>
+      </div>
+      <div class="dre">
+        <div><span>Receita das inscrições</span><span id="d-receita">—</span></div>
+        <div><span>Taxa da plataforma</span><span id="d-taxa">—</span></div>
+        <div><span>Custos variáveis</span><span id="d-var">—</span></div>
+        <div><span>Custos fixos</span><span id="d-fixo">—</span></div>
+        <div class="final"><span id="d-rot">Resultado</span><span id="d-final">—</span></div>
+      </div>
+    </section>
+
+    <section class="bloco">
+      <h2>Quanto cobrar por tamanho de público</h2>
+      <p class="ajuda" id="ajuda-tabela"></p>
+      <table class="tabela-precos">
+        <thead><tr><th>Inscritos</th><th>Valor da inscrição</th></tr></thead>
+        <tbody id="corpo-precos"></tbody>
+      </table>
+    </section>
+
+    <footer class="pe">Linha Pastorallis · funciona no celular e no computador, com ou sem internet</footer>
+  </div>
+
+  <!-- ========== COLUNA C: dados e explicações (no fim, no celular) ========== -->
+  <div class="coluna-c">
+    <section class="bloco">
+      <h2>Seus dados</h2>
+      <p class="ajuda">Tudo fica salvo neste aparelho. Exporte um arquivo para levar o evento a outro celular ou computador.</p>
+      <div class="acoes">
+        <button class="btn claro" id="ac-copiar">Copiar resumo</button>
+        <button class="btn claro" id="ac-exportar">Exportar arquivo</button>
+        <button class="btn claro" id="ac-importar">Importar arquivo</button>
+        <button class="btn claro" id="ac-imprimir">Imprimir / PDF</button>
+        <button class="btn claro" id="ac-limpar">Começar do zero</button>
+      </div>
+      <input type="file" id="arquivo" accept=".json,application/json" hidden>
+    </section>
+    <section class="bloco">
+      <h2>O que cada número significa</h2>
+      <dl class="glossario">
+        <dt>Margem por inscrito</dt>
+        <dd>É o que sobra de cada inscrição depois de tirar a taxa da plataforma e o custo daquela pessoa (comida, material, brinde). Esse pedaço não é lucro: é o dinheiro disponível para ir pagando os custos fixos do evento, que já estão contratados independentemente de quem vier.
+          <code>margem = inscrição − taxa − custo por pessoa</code></dd>
+        <dt>Mínimo de inscritos</dt>
+        <dd>Quantas margens são necessárias para cobrir todos os custos fixos. Abaixo desse número o evento dá prejuízo; acima dele, cada nova inscrição sobra inteira para a pastoral.
+          <code>mínimo = custos fixos ÷ margem, arredondado para cima</code></dd>
+        <dt>Valor da inscrição</dt>
+        <dd>Como a plataforma retém uma porcentagem, é preciso cobrar mais do que se quer receber. Por isso o valor desejado é dividido pelo que sobra da taxa, e não simplesmente somado a ela.
+          <code>inscrição = valor desejado ÷ (1 − taxa)</code></dd>
+        <dt>Pessoas esperadas e sobra desejada</dt>
+        <dd>O caminho inverso, para quem já tem o público em mente e não sabe quanto cobrar. Os custos fixos são divididos entre as pessoas esperadas, soma-se o custo de cada uma e a taxa, e chega-se ao valor da inscrição. A sobra desejada é opcional: é o quanto você quer que fique em caixa para a pastoral depois de tudo pago, e entra no rateio junto com os custos.
+          <code>inscrição = (custos fixos + sobra + pessoas × custo por pessoa) ÷ (pessoas × (1 − taxa))</code></dd>
+        <dt>Vou cobrar, na prática</dt>
+        <dd>O cálculo devolve valores quebrados, e nenhum cartaz de evento anuncia R$ 217,54. Aqui você escreve o valor cheio que vai ser divulgado — ou usa os botões de arredondar — e o app mostra na hora quanto isso muda o mínimo de inscritos. Arredondar para cima quase sempre custa pouco; baixar o valor para atrair gente costuma exigir bem mais gente do que parece, e é esse efeito que a linha embaixo do campo revela.</dd>
+        <dt>Quanto cobrar por tamanho de público</dt>
+        <dd>Ninguém sabe de antemão quantos virão, então a tabela mostra o valor necessário em vários cenários. Público menor, inscrição mais cara: os custos fixos são os mesmos e se dividem entre menos gente. Serve para decidir com que público você trabalha no cartaz e até onde dá para ceder.</dd>
+      </dl>
+    </section>
+  </div>
+
+</div>
+</div>
+
+<div class="so-impressao" id="impressao"></div>
+<div class="aviso" id="aviso" role="status" aria-live="polite"></div>
+</div><!-- /module-eventos -->
+<script>
+(function(){
+"use strict";
+"use strict";
+
+/* ============ utilidades ============ */
+const $ = s => document.querySelector(s);
+const brl = n => (isFinite(n)?n:0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+const pct = n => (n*100).toLocaleString('pt-BR',{maximumFractionDigits:2}) + '%';
+const dataBR = d => d ? new Date(d+'T12:00').toLocaleDateString('pt-BR') : '';
+
+function parseNum(txt){
+  if(typeof txt === 'number') return txt;
+  let s = String(txt||'').replace(/[R$\s%]/g,'').trim();
+  if(!s) return 0;
+  if(s.includes(',')) s = s.replace(/\./g,'').replace(',','.');
+  const n = parseFloat(s);
+  return isFinite(n) ? n : 0;
+}
+
+/* ============ estado ============ */
+const CHAVE = 'pastorallis-eventos-v1';
+const linhaVazia = () => ({data:'',desc:'',valor:0});
+const estadoInicial = () => ({
+  evento:{nome:'',data:'',local:''},
+  modo:'valor',
+  desejado:300, pessoas:30, meta:0, taxa:0.05,
+  fixos:[linhaVazia()], variaveis:[linhaVazia()],
+  praticado:null, sim:50
+});
+let st = estadoInicial();
+
+function salvar(){ try{ localStorage.setItem(CHAVE, JSON.stringify(st)); }catch(e){} }
+function carregar(){
+  try{
+    const bruto = localStorage.getItem(CHAVE);
+    if(bruto) st = Object.assign(estadoInicial(), JSON.parse(bruto));
+  }catch(e){}
+}
+
+/* ============ cálculo ============ */
+function calcular(){
+  const totFixos = st.fixos.reduce((a,l)=>a+(+l.valor||0),0);
+  const varPP    = st.variaveis.reduce((a,l)=>a+(+l.valor||0),0);
+  const taxa     = Math.min(Math.max(st.taxa,0),0.99);
+  const pessoas  = Math.max(0, Math.round(st.pessoas)||0);
+  const meta     = +st.meta || 0;
+  // preço necessário para um público de n pessoas cobrir fixos, variáveis, taxa e a sobra desejada
+  const precoPara = n => n>0 ? (totFixos + meta + n*varPP)/(n*(1-taxa)) : 0;
+  const sugerido = st.modo==='pessoas' ? precoPara(pessoas) : st.desejado/(1-taxa);
+  const preco    = (st.praticado!=null && st.praticado>0) ? st.praticado : sugerido;
+  const taxaPP   = preco*taxa;        // retido em cada inscrição
+  const liquido  = preco - taxaPP;    // o que entra no caixa
+  const margem   = liquido - varPP;   // margem de contribuição
+  // a margem de 1e-9 evita que um arredondamento binário jogue o mínimo para a pessoa seguinte
+  const minimo   = margem>0 ? Math.ceil(totFixos/margem - 1e-9) : null;
+  const margemSug    = sugerido*(1-taxa) - varPP;
+  const minimoSug    = margemSug>0 ? Math.ceil(totFixos/margemSug - 1e-9) : null;
+  const diferenca    = preco - sugerido;
+  const margemPlanilha = preco - varPP;                       // referência: sem descontar a taxa
+  const minimoPlanilha = margemPlanilha>0 ? Math.ceil(totFixos/margemPlanilha - 1e-9) : null;
+  return {totFixos,varPP,taxa,taxaPP,liquido,sugerido,preco,margem,minimo,
+          margemPlanilha,minimoPlanilha,pessoas,meta,precoPara,minimoSug,diferenca};
+}
+
+/* ============ listas ============ */
+function desenharLista(campo, alvo){
+  const cx = $(alvo);
+  cx.innerHTML = '';
+  if(!st[campo].length){
+    cx.innerHTML = '<div class="vazio">Nenhum custo lançado ainda.</div>';
+    return;
+  }
+  st[campo].forEach((item,i)=>{
+    const l = document.createElement('div');
+    l.className = 'linha-item';
+    l.innerHTML =
+      '<input class="i-data" type="date" value="'+(item.data||'')+'" aria-label="Data">'+
+      '<input class="i-desc" placeholder="Descrição" value="'+String(item.desc||'').replace(/"/g,'&quot;')+'" aria-label="Descrição">'+
+      '<input class="i-valor" inputmode="decimal" value="'+(item.valor?brl(item.valor):'')+'" placeholder="R$ 0,00" aria-label="Valor">'+
+      '<button class="i-apagar" aria-label="Remover linha">&times;</button>';
+    const [dt,ds,vl,bt] = l.children;
+    dt.oninput = e => { st[campo][i].data = e.target.value; salvar(); };
+    ds.oninput = e => { st[campo][i].desc = e.target.value; salvar(); };
+    vl.oninput = e => { st[campo][i].valor = parseNum(e.target.value); atualizar(false); };
+    vl.onblur  = e => { e.target.value = st[campo][i].valor ? brl(st[campo][i].valor) : ''; };
+    vl.onfocus = e => { if(st[campo][i].valor) e.target.value = String(st[campo][i].valor).replace('.',','); };
+    bt.onclick = () => { st[campo].splice(i,1); desenharLista(campo,alvo); atualizar(); };
+    cx.appendChild(l);
+  });
+}
+
+/* ============ escala de inscritos ============ */
+function desenharEscala(n, minimo){
+  const cx = $('#pontos');
+  cx.innerHTML = '';
+  const max = 120;
+  const passo = n > max ? Math.ceil(n/max) : 1;
+  const bolinhas = Math.min(Math.ceil(n/passo), max);
+  for(let i=1;i<=bolinhas;i++){
+    const d = document.createElement('span');
+    d.className = 'pt ' + (minimo && i*passo>minimo ? 'lucro' : 'paga');
+    cx.appendChild(d);
+  }
+  if(!bolinhas) cx.innerHTML = '<span style="font-size:13px;line-height:1.4;color:var(--tinta2)">Nenhum inscrito na simulação.</span>';
+  $('#lg-escala').textContent = passo>1 ? ('cada bolinha = '+passo+' pessoas') : '';
+  $('#lg-paga').textContent = minimo ? ('pagam os custos (até '+minimo+')') : 'inscritos';
+}
+
+/* ============ atualização geral ============ */
+function atualizar(redesenharValores=true){
+  const c = calcular();
+
+  $('#tot-fixos').textContent = brl(c.totFixos);
+  $('#tot-variaveis').textContent = brl(c.varPP);
+
+  $('#r-inscricao').textContent = brl(c.preco);
+  $('#r-obs').innerHTML = st.modo==='pessoas'
+    ? ('Valor sugerido pelo cálculo: <b>'+brl(c.sugerido)+'</b> — é o mínimo para '+c.pessoas+
+       (c.pessoas===1?' pessoa':' pessoas')+' cobrirem os custos'+(c.meta?' e ainda sobrarem '+brl(c.meta):'')+'.')
+    : ('Valor sugerido pelo cálculo: <b>'+brl(c.sugerido)+'</b> — '+
+       brl(st.desejado)+' limpos + '+pct(c.taxa)+' de taxa.');
+  $('#r-margem').textContent = brl(c.margem);
+  $('#r-minimo').textContent = c.minimo!=null ? (c.minimo + (c.minimo===1?' pessoa':' pessoas')) : '—';
+
+  $('#r-margem-dica').textContent = 'O que sobra de cada inscrição depois da taxa ('+brl(c.taxaPP)+
+    ') e do custo da pessoa ('+brl(c.varPP)+'). É esse dinheiro que vai pagando os custos fixos.';
+  $('#r-minimo-dica').textContent = c.minimo!=null
+    ? ('Nesse ponto as margens somam os '+brl(c.totFixos)+' de custos fixos. A partir daí, cada inscrição sobra para a pastoral.')
+    : 'Sem margem positiva não existe número de inscritos que pague o evento.';
+
+  if(redesenharValores && document.activeElement !== $('#c-praticado')){
+    $('#c-praticado').value = brl(c.preco);
+  }
+
+  // efeito de arredondar o valor da inscrição
+  const dif = c.diferenca;
+  if(Math.abs(dif) < 0.005){
+    $('#r-efeito').innerHTML = 'Arredonde para um valor cheio — R$ '+
+      Math.ceil(c.sugerido/10)*10+', por exemplo — e veja aqui o efeito no evento.';
+    $('#usar-sugerido').classList.remove('ver');
+  }else{
+    let efeito;
+    if(c.minimo==null || c.minimoSug==null) efeito = '';
+    else if(c.minimo < c.minimoSug) efeito = ' · <span class="cai">mínimo cai de '+c.minimoSug+' para '+c.minimo+' pessoas</span>';
+    else if(c.minimo > c.minimoSug) efeito = ' · <span class="sobe">mínimo sobe de '+c.minimoSug+' para '+c.minimo+' pessoas</span>';
+    else efeito = ' · mínimo continua em '+c.minimo+' pessoas';
+    $('#r-efeito').innerHTML = '<b>'+brl(Math.abs(dif))+(dif>0?' a mais':' a menos')+
+      '</b> por inscrito que o valor calculado ('+brl(c.sugerido)+')'+efeito+'.';
+    $('#usar-sugerido').classList.add('ver');
+  }
+
+  // decomposição do valor da inscrição
+  const base = c.preco>0 ? c.preco : 1;
+  const fT = Math.max(0,Math.min(c.taxaPP,base))/base*100;
+  const fV = Math.max(0,Math.min(c.varPP,base))/base*100;
+  const fM = Math.max(0, 100-fT-fV);
+  const barra = $('#r-barra').children;
+  barra[0].style.width = fT+'%'; barra[1].style.width = fV+'%'; barra[2].style.width = fM+'%';
+  $('#r-decomp').innerHTML =
+    '<span><i style="background:#F87171"></i>Taxa <b>'+brl(c.taxaPP)+'</b></span>'+
+    '<span><i style="background:#FBBF24"></i>Custo da pessoa <b>'+brl(c.varPP)+'</b></span>'+
+    '<span><i style="background:var(--verde-claro)"></i>Margem <b>'+brl(c.margem)+'</b></span>';
+
+  // alertas
+  let al = '';
+  if(c.margem<=0){
+    al = '<div class="alerta grave">A margem está zerada ou negativa: depois da taxa, cada inscrito custa mais do que traz. Aumente o valor da inscrição ou reduza os custos por pessoa.</div>';
+  }else if(c.minimoPlanilha!=null && c.minimo!=null && c.minimo>c.minimoPlanilha){
+    al = '<div class="alerta">O cálculo desconta a taxa da plataforma antes da margem. Sem esse desconto, o mínimo apareceria como <b>'+c.minimoPlanilha+' pessoas</b> — e o evento fecharia no vermelho.</div>';
+  }
+  $('#r-alerta').innerHTML = al;
+
+  // simulação
+  const n = Math.max(0, Math.round(st.sim));
+  const receita = n*c.preco, taxaT = receita*c.taxa, varT = n*c.varPP;
+  const resultado = receita - taxaT - varT - c.totFixos;
+  $('#d-receita').textContent = brl(receita);
+  $('#d-taxa').textContent = '−'+brl(taxaT);
+  $('#d-var').textContent = '−'+brl(varT);
+  $('#d-fixo').textContent = '−'+brl(c.totFixos);
+  $('#d-final').textContent = brl(resultado);
+  $('#d-final').className = resultado>=0 ? 'pos':'neg';
+  $('#d-rot').textContent = resultado>=0 ? 'Sobra para a pastoral' : 'Falta cobrir';
+  desenharEscala(n, c.minimo);
+
+  // textos que mudam conforme o modo
+  $('#ajuda-painel').textContent = st.modo==='pessoas'
+    ? 'Diga quantas pessoas você espera e o app calcula quanto precisa cobrar. A sobra desejada é o quanto você quer que fique para a pastoral depois de tudo pago.'
+    : 'O valor desejado é o quanto você quer receber, limpo, por participante. A taxa é o quanto a plataforma de pagamento retém de cada inscrição.';
+
+  montarTabela(c);
+  montarImpressao(c, n, resultado);
+  salvar();
+}
+
+/* ============ resumo / impressão ============ */
+function textoResumo(){
+  const c = calcular();
+  const L = [];
+  L.push('*'+(st.evento.nome || 'Evento sem nome')+'*');
+  if(st.evento.data) L.push(dataBR(st.evento.data));
+  if(st.evento.local) L.push(st.evento.local);
+  L.push('');
+  L.push('Valor da inscrição: '+brl(c.preco));
+  if(st.modo==='pessoas'){
+    L.push('Público esperado: '+c.pessoas+' pessoas'+(c.meta?' · sobra desejada '+brl(c.meta):''));
+    L.push('Taxa da plataforma: '+pct(c.taxa)+' = '+brl(c.taxaPP)+' por inscrição');
+  }else{
+    L.push('Valor limpo desejado: '+brl(st.desejado)+' (taxa de '+pct(c.taxa)+' = '+brl(c.taxaPP)+')');
+  }
+  L.push('Custos fixos: '+brl(c.totFixos));
+  L.push('Custo por pessoa: '+brl(c.varPP));
+  L.push('Margem por inscrito: '+brl(c.margem));
+  L.push('Mínimo de inscritos: '+(c.minimo!=null?c.minimo:'—'));
+  return L.join('\n');
+}
+
+function montarTabela(c){
+  const base = st.modo==='pessoas' ? c.pessoas : Math.max(1, Math.round(st.sim));
+  const tam = [...new Set([
+    Math.max(1,Math.round(base*0.5)), Math.max(1,Math.round(base*0.75)), Math.max(1,base),
+    Math.round(base*1.5), Math.round(base*2)
+  ])].sort((a,b)=>a-b);
+  $('#ajuda-tabela').textContent = c.meta>0
+    ? ('Quanto cobrar em cada cenário de público para pagar tudo e ainda sobrarem '+brl(c.meta)+'.')
+    : 'Quanto cobrar em cada cenário de público para o evento se pagar. Público menor, inscrição mais cara: os custos fixos se dividem entre menos gente.';
+  $('#corpo-precos').innerHTML = tam.map(n =>
+    '<tr'+(n===base?' class="atual"':'')+'><td>'+n+(n===1?' pessoa':' pessoas')+'</td>'+
+    '<td>'+brl(c.precoPara(n))+'</td></tr>').join('');
+}
+
+function montarImpressao(c, n, resultado){
+  const linhas = arr => arr.filter(l=>l.desc||l.valor).map(l =>
+    '<tr><td>'+dataBR(l.data)+'</td><td>'+(l.desc||'')+'</td><td>'+brl(l.valor||0)+'</td></tr>').join('')
+    || '<tr><td colspan="3">Nada lançado</td></tr>';
+  $('#impressao').innerHTML =
+    '<h1>'+(st.evento.nome||'Precificação de evento')+'</h1>'+
+    '<div class="sub">'+(st.evento.data?dataBR(st.evento.data)+' · ':'')+(st.evento.local||'')+'</div>'+
+    '<h3>Resultado</h3><table>'+
+      '<tr><td>Valor da inscrição</td><td>'+brl(c.preco)+'</td></tr>'+
+      (st.modo==='pessoas'
+        ? '<tr><td>Público esperado</td><td>'+c.pessoas+' pessoas</td></tr>'+
+          (c.meta?'<tr><td>Sobra desejada</td><td>'+brl(c.meta)+'</td></tr>':'')
+        : '<tr><td>Valor limpo desejado</td><td>'+brl(st.desejado)+'</td></tr>')+
+      '<tr><td>Taxa da plataforma ('+pct(c.taxa)+')</td><td>'+brl(c.taxaPP)+'</td></tr>'+
+      '<tr><td>Custo por participante</td><td>'+brl(c.varPP)+'</td></tr>'+
+      '<tr><td>Margem por inscrito</td><td>'+brl(c.margem)+'</td></tr>'+
+      '<tr><td>Mínimo de inscritos</td><td>'+(c.minimo!=null?c.minimo:'—')+'</td></tr>'+
+    '</table>'+
+    '<h3>Custos fixos — total '+brl(c.totFixos)+'</h3>'+
+    '<table><tr><th>Data</th><th>Descrição</th><th>Valor</th></tr>'+linhas(st.fixos)+'</table>'+
+    '<h3>Custos por pessoa — total '+brl(c.varPP)+'</h3>'+
+    '<table><tr><th>Data</th><th>Descrição</th><th>Valor</th></tr>'+linhas(st.variaveis)+'</table>'+
+    '<h3>Simulação com '+n+' inscritos</h3>'+
+    '<table><tr><td>Resultado do evento</td><td>'+brl(resultado)+'</td></tr></table>';
+}
+
+function avisar(msg){
+  const a = $('#aviso');
+  a.textContent = msg; a.classList.add('ver');
+  clearTimeout(a._t); a._t = setTimeout(()=>a.classList.remove('ver'), 2600);
+}
+
+/* ============ ligações ============ */
+function ligarCampos(){
+  ['nome','data','local'].forEach(k=>{
+    const el = $('#ev-'+k);
+    el.value = st.evento[k]||'';
+    el.oninput = e => { st.evento[k] = e.target.value; atualizar(false); };
+  });
+
+  const dj = $('#c-desejado');
+  dj.value = brl(st.desejado);
+  dj.oninput = e => { st.desejado = parseNum(e.target.value); atualizar(false); };
+  dj.onblur  = e => { e.target.value = brl(st.desejado); };
+  dj.onfocus = e => { e.target.value = String(st.desejado).replace('.',','); };
+
+  const ps = $('#c-pessoas');
+  ps.value = st.pessoas;
+  ps.oninput = e => {
+    st.pessoas = Math.max(0, Math.round(parseNum(e.target.value))||0);
+    st.praticado = null;                       // volta a seguir o cálculo
+    sincronizarSim(st.pessoas);
+    atualizar(true);
+  };
+
+  const mt = $('#c-meta');
+  mt.value = brl(st.meta);
+  mt.oninput = e => { st.meta = parseNum(e.target.value); st.praticado = null; atualizar(true); };
+  mt.onblur  = e => { e.target.value = brl(st.meta); };
+  mt.onfocus = e => { e.target.value = st.meta ? String(st.meta).replace('.',',') : ''; };
+
+  const tx = $('#c-taxa');
+  tx.value = pct(st.taxa);
+  tx.oninput = e => { st.taxa = parseNum(e.target.value)/100; atualizar(false); };
+  tx.onblur  = e => { e.target.value = pct(st.taxa); };
+  tx.onfocus = e => { e.target.value = String(st.taxa*100).replace('.',','); };
+
+  const pr = $('#c-praticado');
+  pr.oninput = e => { st.praticado = parseNum(e.target.value)||null; atualizar(false); };
+  pr.onblur  = () => atualizar(true);
+  pr.onfocus = e => { e.target.value = String(calcular().preco.toFixed(2)).replace('.',','); };
+  $('#usar-sugerido').onclick = () => { st.praticado = null; atualizar(); };
+  const arredondar = mult => () => {
+    const alvo = Math.ceil(calcular().sugerido/mult)*mult;
+    st.praticado = alvo>0 ? alvo : null;
+    atualizar();
+  };
+  $('#arred-5').onclick = arredondar(5);
+  $('#arred-10').onclick = arredondar(10);
+
+  const rg = $('#sim-range'), nm = $('#sim-num');
+  const setSim = v => {
+    st.sim = Math.max(0, Math.round(v)||0);
+    if(st.sim > +rg.max) rg.max = Math.ceil(st.sim*1.2);
+    rg.value = st.sim; nm.value = st.sim; atualizar(false);
+  };
+  sincronizarSim = v => { st.sim = Math.max(0, Math.round(v)||0);
+    if(st.sim > +rg.max) rg.max = Math.ceil(st.sim*1.2);
+    rg.value = st.sim; nm.value = st.sim; };
+  rg.oninput = e => setSim(+e.target.value);
+  nm.oninput = e => setSim(parseNum(e.target.value));
+  setSim(st.sim);
+
+  aplicarModo();
+}
+
+let sincronizarSim = () => {};
+
+function aplicarModo(){
+  const p = st.modo === 'pessoas';
+  $('#modo-valor').setAttribute('aria-pressed', String(!p));
+  $('#modo-pessoas').setAttribute('aria-pressed', String(p));
+  $('#campo-desejado').classList.toggle('oculto', p);
+  $('#campo-pessoas').classList.toggle('oculto', !p);
+  $('#campo-meta').classList.toggle('oculto', !p);
+  if(p) sincronizarSim(st.pessoas);
+}
+
+function redesenharTudo(){
+  desenharLista('fixos','#lista-fixos');
+  desenharLista('variaveis','#lista-variaveis');
+  ligarCampos();
+  atualizar();
+}
+
+function ligarAcoes(){
+  const trocarModo = m => () => {
+    st.modo = m; st.praticado = null;
+    aplicarModo(); atualizar(true);
+  };
+  $('#modo-valor').onclick = trocarModo('valor');
+  $('#modo-pessoas').onclick = trocarModo('pessoas');
+
+  $('#add-fixo').onclick = () => { st.fixos.push(linhaVazia()); desenharLista('fixos','#lista-fixos'); atualizar(); };
+  $('#add-variavel').onclick = () => { st.variaveis.push(linhaVazia()); desenharLista('variaveis','#lista-variaveis'); atualizar(); };
+
+  $('#ac-copiar').onclick = async () => {
+    const t = textoResumo();
+    try{
+      if(navigator.clipboard && window.isSecureContext){ await navigator.clipboard.writeText(t); }
+      else{
+        const ta = document.createElement('textarea');
+        ta.value = t; ta.style.position='fixed'; ta.style.opacity='0';
+        document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove();
+      }
+      avisar('Resumo copiado');
+    }catch(e){ avisar('Não foi possível copiar aqui'); }
+  };
+
+  $('#ac-exportar').onclick = () => {
+    try{
+      const blob = new Blob([JSON.stringify(st,null,2)],{type:'application/json'});
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = (st.evento.nome||'evento').replace(/[^\w\-]+/g,'-').toLowerCase()+'.json';
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(()=>URL.revokeObjectURL(a.href), 1000);
+      avisar('Arquivo gerado');
+    }catch(e){ avisar('Exportação bloqueada neste navegador'); }
+  };
+
+  $('#ac-importar').onclick = () => $('#arquivo').click();
+  $('#arquivo').onchange = e => {
+    const f = e.target.files[0]; if(!f) return;
+    const r = new FileReader();
+    r.onload = () => {
+      try{
+        st = Object.assign(estadoInicial(), JSON.parse(r.result));
+        redesenharTudo(); avisar('Evento importado');
+      }catch(err){ avisar('Arquivo não reconhecido'); }
+    };
+    r.readAsText(f); e.target.value = '';
+  };
+
+  $('#ac-imprimir').onclick = () => { try{ window.print(); }catch(e){ avisar('Impressão indisponível aqui'); } };
+
+  // começar do zero: confirmação em dois toques (não depende de janela do navegador)
+  const bl = $('#ac-limpar');
+  let armado = false, t = null;
+  bl.onclick = () => {
+    if(!armado){
+      armado = true;
+      bl.textContent = 'Toque de novo para apagar';
+      bl.classList.add('perigo');
+      clearTimeout(t);
+      t = setTimeout(()=>{ armado=false; bl.textContent='Começar do zero'; bl.classList.remove('perigo'); }, 5000);
+      return;
+    }
+    clearTimeout(t); armado = false;
+    bl.textContent = 'Começar do zero'; bl.classList.remove('perigo');
+    st = estadoInicial();
+    try{ localStorage.removeItem(CHAVE); }catch(e){}
+    redesenharTudo();
+    avisar('Tudo limpo');
+  };
+}
+
+/* ============ início ============ */
+carregar();
+ligarAcoes();
+redesenharTudo();
+})();
+</script>
+
+
 
 <!-- ══ ADMIN LOGIN MODAL ══ -->
 <div class="admin-overlay" id="adminOverlay">
@@ -2597,7 +3490,8 @@ var moduleColors = {
   adiantamento:{hdr:["#d97706","#f59e0b"], pb:"pb-adia"},
   rpa:     {hdr:["#16a34a","#22c55e"], pb:"pb-rpa"},
   admin:   {hdr:["#7c3aed","#8b5cf6"], pb:""},
-  home:    {hdr:["#2563eb","#3b82f6"], pb:""}
+  home:    {hdr:["#2563eb","#3b82f6"], pb:""},
+  eventos: {hdr:["#0E6B80","#149EB8"], pb:""}
 };
 var moduleInfo = {
   home:        {icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:1.15em;height:1.15em;vertical-align:-0.2em"><path d="M3 11 12 4l9 7"/><path d="M5 10v10h14V10"/><path d="M9 20v-6h6v6"/></svg>', title:"Pastorallis One",                 sub:"Simples de usar, pronto para servir."},
@@ -2605,7 +3499,8 @@ var moduleInfo = {
   contas:      {icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:1.15em;height:1.15em;vertical-align:-0.2em"><rect x="6" y="4" width="12" height="17" rx="2"/><path d="M9 4V3a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v1"/><path d="M9 11h6M9 15h6"/></svg>', title:"Prestação de Contas",              sub:"Registre gastos e comprovantes"},
   adiantamento:{icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:1.15em;height:1.15em;vertical-align:-0.2em"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="3"/><path d="M6 9h.01M18 15h.01"/></svg>', title:"Solicitação de Adiantamento",      sub:"Solicite verba antecipada"},
   rpa:         {icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:1.15em;height:1.15em;vertical-align:-0.2em"><path d="M13 3H7a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V8Z"/><path d="M13 3v5h5"/><path d="M9 13h6M9 17h6"/></svg>', title:"Recibo de Pagamento Autônomo",     sub:"Preencha os dados do RPA"},
-  admin:       {icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:1.15em;height:1.15em;vertical-align:-0.2em"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>', title:"Painel Administrativo",            sub:"Gerenciar solicitações"}
+  admin:       {icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:1.15em;height:1.15em;vertical-align:-0.2em"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>', title:"Painel Administrativo",            sub:"Gerenciar solicitações"},
+  eventos:     {icon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:1.15em;height:1.15em;vertical-align:-0.2em"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>', title:"Calcular Evento",                 sub:"Quanto cobrar pela inscrição"}
 };
 // ── TELA DE CONFIRMAÇÃO (SUCESSO) ──
 function mostrarSucesso(titulo, subtitulo){
@@ -2645,7 +3540,7 @@ function switchModule(mod) {
   // Na Home, o menu fica preso dentro do próprio cabeçalho (rola junto com a página);
   // nas outras telas, usa o botão flutuante de sempre.
   var hamburgerFixo = document.getElementById("hamburgerBtn");
-  if(hamburgerFixo) hamburgerFixo.style.display = (mod==="home") ? "none" : "flex";
+  if(hamburgerFixo) hamburgerFixo.style.display = (mod==="home"||mod==="eventos") ? "none" : "flex";
 
   // Marca item ativo no menu drawer
   document.querySelectorAll(".drawer-item").forEach(function(b){b.classList.remove("active");});
@@ -2673,8 +3568,8 @@ function switchModule(mod) {
 
   // Show/hide top header
   var hdrEl = document.getElementById("appHeader");
-  if(hdrEl){ if(mod==="home"){ hdrEl.classList.remove("show"); document.body.classList.remove("has-fixed-header"); } else { hdrEl.classList.add("show"); document.body.classList.add("has-fixed-header"); } }
-  if(mod==="home"||mod==="admin"){ pw.style.display="none"; }
+  if(hdrEl){ if(mod==="home"||mod==="eventos"){ hdrEl.classList.remove("show"); document.body.classList.remove("has-fixed-header"); } else { hdrEl.classList.add("show"); document.body.classList.add("has-fixed-header"); } }
+  if(mod==="home"||mod==="admin"||mod==="eventos"){ pw.style.display="none"; }
   else {
     pw.style.display="block";
     if(mod==="passagem"){ pBuildProgress(pCurrentSec); formSchemaApply('passagem'); }
