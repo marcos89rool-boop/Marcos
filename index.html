@@ -2413,7 +2413,7 @@ textarea{resize:vertical;min-height:80px;}
 #module-eventos .pontos{display:flex;flex-wrap:wrap;gap:3px;line-height:0}
 #module-eventos .pt{width:9px;height:9px;border-radius:50%;background:var(--linha)}
 #module-eventos .pt.paga{background:var(--teal)}
-#module-eventos .pt.lucro{background:var(--verde)}
+#module-eventos .pt.superavit{background:var(--verde)}
 #module-eventos .legenda{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--tinta2);margin-top:10px}
 #module-eventos .legenda i{width:9px;height:9px;border-radius:50%;display:inline-block;margin-right:5px}
 #module-eventos .dre{margin-top:14px;border-top:1px solid var(--linha);padding-top:10px}
@@ -2634,10 +2634,10 @@ textarea{resize:vertical;min-height:80px;}
   <h2>O que cada número significa</h2>
   <dl class="glossario">
         <dt>Margem por inscrito</dt>
-        <dd>É o que sobra de cada inscrição depois de tirar a taxa da plataforma e o custo daquela pessoa (comida, material, brinde). Esse pedaço não é lucro: é o dinheiro disponível para ir pagando os custos fixos do evento, que já estão contratados independentemente de quem vier.
+        <dd>É o que sobra de cada inscrição depois de tirar a taxa da plataforma e o custo daquela pessoa (comida, material, brinde). Esse pedaço não é superávit: é o dinheiro disponível para ir pagando os custos fixos do evento, que já estão contratados independentemente de quem vier.
           <code>margem = inscrição − taxa − custo por pessoa</code></dd>
         <dt>Mínimo de inscritos</dt>
-        <dd>Quantas margens são necessárias para cobrir todos os custos fixos. Abaixo desse número o evento dá prejuízo; acima dele, cada nova inscrição sobra inteira para a pastoral.
+        <dd>Quantas margens são necessárias para cobrir todos os custos fixos. Abaixo desse número o evento fica em déficit; acima dele, cada nova inscrição gera superávit inteiro para a pastoral.
           <code>mínimo = custos fixos ÷ margem, arredondado para cima</code></dd>
         <dt>Valor da inscrição</dt>
         <dd>Como a plataforma retém uma porcentagem, é preciso cobrar mais do que se quer receber. Por isso o valor desejado é dividido pelo que sobra da taxa, e não simplesmente somado a ela.
@@ -2758,7 +2758,7 @@ function desenharEscala(n, minimo){
   const bolinhas = Math.min(Math.ceil(n/passo), max);
   for(let i=1;i<=bolinhas;i++){
     const d = document.createElement('span');
-    d.className = 'pt ' + (minimo && i*passo>minimo ? 'lucro' : 'paga');
+    d.className = 'pt ' + (minimo && i*passo>minimo ? 'superavit' : 'paga');
     cx.appendChild(d);
   }
   if(!bolinhas) cx.innerHTML = '<span style="font-size:13px;line-height:1.4;color:var(--tinta2)">Nenhum inscrito na simulação.</span>';
