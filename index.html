@@ -2248,7 +2248,7 @@ textarea{resize:vertical;min-height:80px;}
   background:var(--papel);color:var(--tinta);font-family:var(--corpo);
   font-size:16px;line-height:1.5;-webkit-text-size-adjust:100%;
 }
-#module-eventos .wrap{max-width:1180px;margin:0 auto;padding:0 16px 120px}
+#module-eventos .wrap{max-width:680px;margin:0 auto;padding:0 16px 120px}
 
 /* ---------- dados do evento ---------- */
 #module-eventos .bloco-evento{margin-top:20px}
@@ -2266,13 +2266,9 @@ textarea{resize:vertical;min-height:80px;}
 #module-eventos .evento-linha label b{color:#DC2626;font-weight:700}
 
 /* ---------- layout ---------- */
+/* Coluna única sempre: evita o desequilíbrio de altura entre as colunas
+   quando uma delas acumula mais cards que a outra (ver histórico). */
 #module-eventos .colunas{display:grid;grid-template-columns:1fr;gap:16px;margin-top:20px}
-@media(min-width:980px){
-  #module-eventos .colunas{grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);align-items:start}
-  #module-eventos .coluna-a{grid-column:1;grid-row:1}
-  #module-eventos .coluna-b{grid-column:2;grid-row:1;position:sticky;top:16px;display:flex;flex-direction:column}
-  #module-eventos .resultado{flex:1;display:flex;flex-direction:column;justify-content:center}
-}
 #module-eventos .bloco{
   background:var(--alto);border:1px solid var(--linha);border-radius:var(--r);
   padding:16px;margin-bottom:16px;
