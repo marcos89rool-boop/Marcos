@@ -2261,6 +2261,9 @@ textarea{resize:vertical;min-height:80px;}
 }
 #module-eventos .evento-linha input::placeholder{color:#94A3B8}
 #module-eventos .evento-linha input:focus{outline:2px solid var(--teal);outline-offset:1px;border-color:var(--teal);background:#fff}
+#module-eventos .evento-linha .campo-ev{display:flex;flex-direction:column;gap:5px}
+#module-eventos .evento-linha label{font-size:11.5px;font-weight:600;color:var(--tinta2);text-transform:uppercase;letter-spacing:.05em}
+#module-eventos .evento-linha label b{color:#DC2626;font-weight:700}
 
 /* ---------- layout ---------- */
 #module-eventos .colunas{display:grid;grid-template-columns:1fr;gap:16px;margin-top:20px}
@@ -2351,6 +2354,7 @@ textarea{resize:vertical;min-height:80px;}
 #module-eventos .resultado{background:var(--tinta);color:#fff;border-color:var(--tinta)}
 #module-eventos .resultado > h2{color:#fff}
 #module-eventos .resultado > h2::before{background:var(--teal)}
+#module-eventos .resultado > .ajuda{color:#94A3B8}
 #module-eventos .heroi{margin:6px 0 4px}
 #module-eventos .heroi .rot{font-size:11.5px;text-transform:uppercase;letter-spacing:.08em;color:#94A3B8;font-weight:600}
 #module-eventos .heroi .num{
@@ -2459,9 +2463,18 @@ textarea{resize:vertical;min-height:80px;}
 <section class="bloco bloco-evento">
   <p class="ajuda">Lance os custos do evento e descubra quanto cobrar por inscrição e quantas pessoas precisam se inscrever para o evento se pagar.</p>
   <div class="evento-linha">
-    <input id="ev-nome" placeholder="Nome do evento" autocomplete="off">
-    <input id="ev-data" type="date">
-    <input id="ev-local" placeholder="Local / paróquia" autocomplete="off">
+    <div class="campo-ev">
+      <label for="ev-nome">Nome do evento</label>
+      <input id="ev-nome" placeholder="Ex.: Encontro de Casais" autocomplete="off">
+    </div>
+    <div class="campo-ev">
+      <label for="ev-data">Data do evento <b>*</b></label>
+      <input id="ev-data" type="date" required>
+    </div>
+    <div class="campo-ev">
+      <label for="ev-local">Local / paróquia</label>
+      <input id="ev-local" placeholder="Ex.: Paróquia São José" autocomplete="off">
+    </div>
   </div>
 </section>
 
@@ -2499,7 +2512,7 @@ textarea{resize:vertical;min-height:80px;}
 
     <section class="bloco">
       <h2>Custos fixos</h2>
-      <p class="ajuda">Os que você paga tendo 10 ou 100 inscritos: aluguel do espaço, som, iluminação, hospedagem e ajuda de custo do palestrante.</p>
+      <p class="ajuda"><b>É o que não muda com o público:</b> você paga o mesmo valor total tenha 10 ou 100 inscritos — aluguel do espaço, som, iluminação, hospedagem, ajuda de custo do palestrante. Quanto mais gente vier, menor a fatia que cada um paga desse custo.</p>
       <div class="lista" id="lista-fixos"></div>
       <div class="rodape-lista">
         <button class="btn claro" id="add-fixo">+ Adicionar custo fixo</button>
@@ -2509,21 +2522,12 @@ textarea{resize:vertical;min-height:80px;}
 
     <section class="bloco">
       <h2>Custos variáveis</h2>
-      <p class="ajuda">Lance o valor <b>por pessoa</b>: coffee break, almoço, material impresso, crachá, brinde. Cresce conforme o número de participantes.</p>
+      <p class="ajuda"><b>É o que multiplica por pessoa:</b> coffee break, almoço, material impresso, crachá, brinde. Lance aqui o valor de <b>uma</b> pessoa — o app multiplica automaticamente pelo número de inscritos, então o total cresce junto com o público.</p>
       <div class="lista" id="lista-variaveis"></div>
       <div class="rodape-lista">
         <button class="btn claro" id="add-variavel">+ Adicionar custo por pessoa</button>
         <div class="total-lista"><small>Total por pessoa</small><span id="tot-variaveis">R$ 0,00</span></div>
       </div>
-    </section>
-
-    <section class="bloco">
-      <h2>Quanto cobrar por tamanho de público</h2>
-      <p class="ajuda" id="ajuda-tabela"></p>
-      <table class="tabela-precos">
-        <thead><tr><th>Inscritos</th><th>Valor da inscrição</th></tr></thead>
-        <tbody id="corpo-precos"></tbody>
-      </table>
     </section>
 
   </div>
@@ -2533,6 +2537,7 @@ textarea{resize:vertical;min-height:80px;}
 
     <section class="bloco resultado">
       <h2>Valor da inscrição</h2>
+      <p class="ajuda">O valor final soma custos fixos, custo por pessoa e a taxa da plataforma — dividido para cobrir tudo.</p>
       <div class="heroi">
         <div class="rot">Cobrar de cada participante</div>
         <div class="num" id="r-inscricao">R$ 0,00</div>
@@ -2594,6 +2599,15 @@ textarea{resize:vertical;min-height:80px;}
         <div><span>Custos fixos</span><span id="d-fixo">—</span></div>
         <div class="final"><span id="d-rot">Resultado</span><span id="d-final">—</span></div>
       </div>
+    </section>
+
+    <section class="bloco">
+      <h2>Quanto cobrar por tamanho de público</h2>
+      <p class="ajuda" id="ajuda-tabela"></p>
+      <table class="tabela-precos">
+        <thead><tr><th>Inscritos</th><th>Valor da inscrição</th></tr></thead>
+        <tbody id="corpo-precos"></tbody>
+      </table>
     </section>
 
   </div>
@@ -2997,7 +3011,19 @@ function evtBuildPDF(){
   return {doc, nome};
 }
 
+function exigirData(){
+  if(!st.evento.data){
+    avisar('Informe a data do evento antes de continuar.');
+    const el = $('#ev-data');
+    el.focus();
+    el.scrollIntoView({behavior:'smooth', block:'center'});
+    return false;
+  }
+  return true;
+}
+
 function evtGerarPDF(){
+  if(!exigirData()) return;
   try{
     const res = evtBuildPDF();
     res.doc.save(res.nome);
@@ -3011,6 +3037,7 @@ function evtFallbackWPP(){
 }
 
 function evtGerarEEnviar(){
+  if(!exigirData()) return;
   try{
     const res = evtBuildPDF();
     const blob = res.doc.output('blob');
