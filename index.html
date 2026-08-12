@@ -3009,19 +3009,7 @@ function evtBuildPDF(){
   return {doc, nome};
 }
 
-function exigirData(){
-  if(!st.evento.data){
-    avisar('Informe a data do evento antes de continuar.');
-    const el = $('#ev-data');
-    el.focus();
-    el.scrollIntoView({behavior:'smooth', block:'center'});
-    return false;
-  }
-  return true;
-}
-
 function evtGerarPDF(){
-  if(!exigirData()) return;
   try{
     const res = evtBuildPDF();
     res.doc.save(res.nome);
@@ -3035,7 +3023,6 @@ function evtFallbackWPP(){
 }
 
 function evtGerarEEnviar(){
-  if(!exigirData()) return;
   try{
     const res = evtBuildPDF();
     const blob = res.doc.output('blob');
