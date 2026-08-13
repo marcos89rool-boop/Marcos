@@ -2248,7 +2248,7 @@ textarea{resize:vertical;min-height:80px;}
   background:var(--papel);color:var(--tinta);font-family:var(--corpo);
   font-size:16px;line-height:1.5;-webkit-text-size-adjust:100%;
 }
-#module-eventos .wrap{max-width:1180px;margin:0 auto;padding:0 16px 120px}
+#module-eventos .wrap{max-width:680px;margin:0 auto;padding:0 16px 120px}
 
 /* ---------- dados do evento ---------- */
 #module-eventos .bloco-evento{margin-top:20px}
@@ -2261,15 +2261,14 @@ textarea{resize:vertical;min-height:80px;}
 }
 #module-eventos .evento-linha input::placeholder{color:#94A3B8}
 #module-eventos .evento-linha input:focus{outline:2px solid var(--teal);outline-offset:1px;border-color:var(--teal);background:#fff}
+#module-eventos .evento-linha .campo-ev{display:flex;flex-direction:column;gap:5px}
+#module-eventos .evento-linha label{font-size:11.5px;font-weight:600;color:var(--tinta2);text-transform:uppercase;letter-spacing:.05em}
+#module-eventos .evento-linha label b{color:#DC2626;font-weight:700}
 
 /* ---------- layout ---------- */
+/* Coluna única sempre: evita o desequilíbrio de altura entre as colunas
+   quando uma delas acumula mais cards que a outra (ver histórico). */
 #module-eventos .colunas{display:grid;grid-template-columns:1fr;gap:16px;margin-top:20px}
-@media(min-width:980px){
-  #module-eventos .colunas{grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr)}
-  #module-eventos .coluna-a{grid-column:1;grid-row:1}
-  #module-eventos .coluna-b{grid-column:2;grid-row:1;position:sticky;top:16px;display:flex;flex-direction:column}
-  #module-eventos .resultado{flex:1;display:flex;flex-direction:column;justify-content:center}
-}
 #module-eventos .bloco{
   background:var(--alto);border:1px solid var(--linha);border-radius:var(--r);
   padding:16px;margin-bottom:16px;
@@ -2282,13 +2281,13 @@ textarea{resize:vertical;min-height:80px;}
 #module-eventos .ajuda{color:var(--tinta2);font-size:13px;margin:0 0 14px 15px}
 
 /* ---------- campos ---------- */
-#module-eventos .modos{display:grid;grid-template-columns:1fr 1fr;gap:6px;background:var(--papel);
+#module-eventos .modos{display:grid;grid-template-columns:1fr;gap:6px;background:var(--papel);
   border-radius:11px;padding:5px;margin:2px 0 14px}
-#module-eventos .modo{border:0;background:none;border-radius:8px;padding:9px 8px;font:inherit;font-size:13px;
+#module-eventos .modo{border:0;background:none;border-radius:8px;padding:11px 8px;font:inherit;font-size:13px;
   font-weight:600;color:var(--tinta2);cursor:pointer;line-height:1.25}
 #module-eventos .modo[aria-pressed=true]{background:#fff;color:var(--teal-esc);box-shadow:0 1px 3px rgba(30,41,59,.12)}
 #module-eventos .modo:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
-#module-eventos .campos{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+#module-eventos .campos{display:grid;grid-template-columns:1fr;gap:12px}
 #module-eventos .campo.oculto{display:none}
 #module-eventos .tabela-precos{width:100%;border-collapse:collapse;font-size:14px}
 #module-eventos .tabela-precos th{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--tinta2);
@@ -2409,7 +2408,7 @@ textarea{resize:vertical;min-height:80px;}
 #module-eventos .pontos{display:flex;flex-wrap:wrap;gap:3px;line-height:0}
 #module-eventos .pt{width:9px;height:9px;border-radius:50%;background:var(--linha)}
 #module-eventos .pt.paga{background:var(--teal)}
-#module-eventos .pt.lucro{background:var(--verde)}
+#module-eventos .pt.superavit{background:var(--verde)}
 #module-eventos .legenda{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--tinta2);margin-top:10px}
 #module-eventos .legenda i{width:9px;height:9px;border-radius:50%;display:inline-block;margin-right:5px}
 #module-eventos .dre{margin-top:14px;border-top:1px solid var(--linha);padding-top:10px}
@@ -2459,9 +2458,18 @@ textarea{resize:vertical;min-height:80px;}
 <section class="bloco bloco-evento">
   <p class="ajuda">Lance os custos do evento e descubra quanto cobrar por inscrição e quantas pessoas precisam se inscrever para o evento se pagar.</p>
   <div class="evento-linha">
-    <input id="ev-nome" placeholder="Nome do evento" autocomplete="off">
-    <input id="ev-data" type="date">
-    <input id="ev-local" placeholder="Local / paróquia" autocomplete="off">
+    <div class="campo-ev">
+      <label for="ev-nome">Nome do evento</label>
+      <input id="ev-nome" placeholder="Ex.: Encontro de Casais" autocomplete="off">
+    </div>
+    <div class="campo-ev">
+      <label for="ev-data">Data do evento <b>*</b></label>
+      <input id="ev-data" type="date" required>
+    </div>
+    <div class="campo-ev">
+      <label for="ev-local">Local / paróquia</label>
+      <input id="ev-local" placeholder="Ex.: Paróquia São José" autocomplete="off">
+    </div>
   </div>
 </section>
 
@@ -2499,7 +2507,7 @@ textarea{resize:vertical;min-height:80px;}
 
     <section class="bloco">
       <h2>Custos fixos</h2>
-      <p class="ajuda">Os que você paga tendo 10 ou 100 inscritos: aluguel do espaço, som, iluminação, hospedagem e ajuda de custo do palestrante.</p>
+      <p class="ajuda"><b>Não muda com o público:</b> mesmo valor com 10 ou 100 inscritos — aluguel, som, iluminação, hospedagem, palestrante.</p>
       <div class="lista" id="lista-fixos"></div>
       <div class="rodape-lista">
         <button class="btn claro" id="add-fixo">+ Adicionar custo fixo</button>
@@ -2509,21 +2517,12 @@ textarea{resize:vertical;min-height:80px;}
 
     <section class="bloco">
       <h2>Custos variáveis</h2>
-      <p class="ajuda">Lance o valor <b>por pessoa</b>: coffee break, almoço, material impresso, crachá, brinde. Cresce conforme o número de participantes.</p>
+      <p class="ajuda"><b>Multiplica por pessoa:</b> coffee break, almoço, material, crachá, brinde. Lance o valor de 1 pessoa — o app calcula o total.</p>
       <div class="lista" id="lista-variaveis"></div>
       <div class="rodape-lista">
         <button class="btn claro" id="add-variavel">+ Adicionar custo por pessoa</button>
         <div class="total-lista"><small>Total por pessoa</small><span id="tot-variaveis">R$ 0,00</span></div>
       </div>
-    </section>
-
-    <section class="bloco">
-      <h2>Quanto cobrar por tamanho de público</h2>
-      <p class="ajuda" id="ajuda-tabela"></p>
-      <table class="tabela-precos">
-        <thead><tr><th>Inscritos</th><th>Valor da inscrição</th></tr></thead>
-        <tbody id="corpo-precos"></tbody>
-      </table>
     </section>
 
   </div>
@@ -2557,7 +2556,7 @@ textarea{resize:vertical;min-height:80px;}
           <div class="dica" id="r-margem-dica"></div>
         </div>
         <div class="ind">
-          <div class="rot">Mínimo de inscritos</div>
+          <div class="rot">Mínimo de inscritos <span style="text-transform:none;opacity:.75">(ponto de equilíbrio)</span></div>
           <div class="num" id="r-minimo">—</div>
           <div class="dica" id="r-minimo-dica"></div>
         </div>
@@ -2596,6 +2595,15 @@ textarea{resize:vertical;min-height:80px;}
       </div>
     </section>
 
+    <section class="bloco">
+      <h2>Quanto cobrar por tamanho de público</h2>
+      <p class="ajuda" id="ajuda-tabela"></p>
+      <table class="tabela-precos">
+        <thead><tr><th>Inscritos</th><th>Valor da inscrição</th></tr></thead>
+        <tbody id="corpo-precos"></tbody>
+      </table>
+    </section>
+
   </div>
 
 </div>
@@ -2620,10 +2628,10 @@ textarea{resize:vertical;min-height:80px;}
   <h2>O que cada número significa</h2>
   <dl class="glossario">
         <dt>Margem por inscrito</dt>
-        <dd>É o que sobra de cada inscrição depois de tirar a taxa da plataforma e o custo daquela pessoa (comida, material, brinde). Esse pedaço não é lucro: é o dinheiro disponível para ir pagando os custos fixos do evento, que já estão contratados independentemente de quem vier.
+        <dd>É o que sobra de cada inscrição depois de tirar a taxa da plataforma e o custo daquela pessoa (comida, material, brinde). Esse pedaço não é superávit: é o dinheiro disponível para ir pagando os custos fixos do evento, que já estão contratados independentemente de quem vier.
           <code>margem = inscrição − taxa − custo por pessoa</code></dd>
-        <dt>Mínimo de inscritos</dt>
-        <dd>Quantas margens são necessárias para cobrir todos os custos fixos. Abaixo desse número o evento dá prejuízo; acima dele, cada nova inscrição sobra inteira para a pastoral.
+        <dt>Mínimo de inscritos (ponto de equilíbrio)</dt>
+        <dd>Quantas margens são necessárias para cobrir todos os custos fixos — é o ponto de equilíbrio do evento. Abaixo desse número o evento fica em déficit; acima dele, cada nova inscrição gera superávit inteiro para a pastoral.
           <code>mínimo = custos fixos ÷ margem, arredondado para cima</code></dd>
         <dt>Valor da inscrição</dt>
         <dd>Como a plataforma retém uma porcentagem, é preciso cobrar mais do que se quer receber. Por isso o valor desejado é dividido pelo que sobra da taxa, e não simplesmente somado a ela.
@@ -2744,7 +2752,7 @@ function desenharEscala(n, minimo){
   const bolinhas = Math.min(Math.ceil(n/passo), max);
   for(let i=1;i<=bolinhas;i++){
     const d = document.createElement('span');
-    d.className = 'pt ' + (minimo && i*passo>minimo ? 'lucro' : 'paga');
+    d.className = 'pt ' + (minimo && i*passo>minimo ? 'superavit' : 'paga');
     cx.appendChild(d);
   }
   if(!bolinhas) cx.innerHTML = '<span style="font-size:13px;line-height:1.4;color:var(--tinta2)">Nenhum inscrito na simulação.</span>';
